@@ -42,3 +42,4 @@ Logs/
 # Keep external research, but not recovered runtime build noise
 external/**/bin/
 external/**/obj/
+/external
