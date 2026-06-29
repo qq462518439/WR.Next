@@ -1,0 +1,44 @@
+# Build outputs
+**/bin/
+**/obj/
+**/Debug/
+**/Release/
+
+# IDE / tooling
+.vs/
+.vscode/
+*.user
+*.suo
+*.cache
+*.tmp
+*.log
+
+# Runtime artifacts
+artifacts/LATEST-UIHOST.txt
+artifacts/uihost-runtime-layout/
+artifacts/截图/
+artifacts/**/*.log
+artifacts/**/*.html
+
+# Diagnostics generated binaries
+tools/diagnostics/bin/
+tools/RuntimeHookProbe/bin/
+tools/RuntimeHookProbe/obj/
+
+# NuGet / package restore noise
+packages/
+*.nupkg
+project.assets.json
+project.nuget.cache
+*.nuget.dgspec.json
+*.nuget.g.props
+*.nuget.g.targets
+
+# Local settings / secrets / machine drift
+Settings/
+Logs/
+*.pid
+
+# Keep external research, but not recovered runtime build noise
+external/**/bin/
+external/**/obj/

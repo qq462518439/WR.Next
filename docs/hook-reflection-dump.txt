@@ -1,0 +1,105 @@
+HOOK CTORS
+Void .ctor(Int32, UInt32, Byte[], UInt32, UInt32, Boolean, Boolean, UInt32, UInt32, UInt32, UInt32)
+  P 0 System.Int32 processId default=
+  P 1 System.UInt32 detourAddress default=
+  P 2 System.Byte[] originalBytes default=
+  P 3 System.UInt32 jumpOrCallEsiWrapper default=0
+  P 4 System.UInt32 jumpOrCallEsiWrapperOffset default=0
+  P 5 System.Boolean rebaseCallAndJmpAddress default=True
+  P 6 System.Boolean hwbpHook default=False
+  P 7 System.UInt32 searchStackRequiredValue default=0
+  P 8 System.UInt32 searchStackMaxDistance default=592
+  P 9 System.UInt32 detourPointerDefaultValue default=0
+  P 10 System.UInt32 threadId default=0
+HOOK METHODS
+ S Boolean (UInt32, UInt32, UInt32, UInt32, UInt32 ByRef)
+ I Void ()
+ I System.String ()
+ S System.String (Int32, Int32)
+ S System.String[] ()
+ I System.String[] ()
+ I System.Collections.Generic.List`1[System.String] (System.String[], Boolean)
+ S System.String (System.String)
+ I System.Collections.Generic.List`1[robotManager.MemoryClass.Hook+] ()
+ S Int32 (IntPtr, IntPtr,  ByRef, UInt32)
+ S Void ( ByRef)
+ I Void (MemoryRobot.ThreadContext)
+ I Void ()
+ I Void ()
+ I Byte[] Assemble(System.String[])
+ S Int32 CalculateFrameRate()
+ I System.String CallWrapperCode(UInt32, System.Object[])
+ I System.String CallWrapperCodeRebaseEsp(UInt32, Int32, System.Object[])
+ I Void CloseHookedProcess()
+ I Boolean DetourInUse()
+ I Void Dispose()
+ I Void DisposeHooking(Boolean)
+ I Byte[] Execute(UInt32, Boolean, Int32)
+ I Boolean ExecuteNewThread(UInt32)
+ I UInt32 get_AfterCall()
+ I Boolean get_FrameIsLocked()
+ I MemoryRobot.Memory get_Memory()
+ S Int32 GetCurrentThreadId()
+ I Boolean HookedProcessIsUserAnAdmin()
+ I Boolean Inject(System.String[], UInt32 ByRef, UInt32 ByRef)
+ I Boolean Inject(Byte[], UInt32 ByRef, UInt32 ByRef)
+ I Byte[] InjectAndExecute(System.String[], Boolean, Int32, Boolean)
+ I Byte[] InjectAndExecute(Byte[], Boolean, Int32, Boolean)
+ I Boolean InjectExecuteNewThread(System.String[])
+ I Boolean InstallStealthProtection()
+ S Boolean IsUsed(Int32, UInt32, Boolean, UInt32)
+ I Void LockFrame()
+ I Void set_FrameIsLocked(Boolean)
+ I Void UnlockFrame(Boolean)
+HOOK FIELDS
+ I robotManager.MemoryClass.AllocManager AllocText
+ I robotManager.MemoryClass.AllocManager AllocData
+ I robotManager.MemoryClass.StealthProtection \u0002
+ I System.UInt32 \u0008
+ I System.UInt32 \u0006
+ I System.UInt32 \u000F
+ I MemoryRobot.Memory \u0005
+ I System.UInt32 \u0003
+ I System.UInt32 \u000E
+ I System.UInt32 \u0002\u2004
+ I System.Boolean \u0008\u2004
+ I System.Int32 \u0006\u2004
+ I System.Byte[] \u000F\u2004
+ I System.Int32 \u0005\u2004
+ I System.String \u0003\u2004
+ I System.String \u000E\u2004
+ I System.UInt32 \u0002\u2007
+ I System.UInt32 \u0008\u2007
+ I System.UInt32 \u0006\u2007
+ I System.UInt32 \u000F\u2007
+ I System.UInt32 \u0005\u2007
+ I System.Boolean \u0003\u2007
+ I System.UInt32 \u000E\u2007
+ I System.UInt32 \u0002\u2003
+ I System.UInt32 \u0008\u2003
+ I System.UInt32 \u0006\u2003
+ I System.UInt32 \u000F\u2003
+ I System.UInt32 \u0005\u2003
+ I System.Object LockFrameLocker
+ I System.UInt32 \u0003\u2003
+ I System.UInt32 \u000E\u2003
+ I System.UInt32 \u0002\u2009
+ I System.String RetnToHookCode
+ I System.Boolean ThreadHooked
+ I System.Int32 \u0006\u2009
+ I System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]] \u0005\u2009
+ I robotManager.Helpful.Timer \u0003\u2009
+ S System.Object Locker
+ S System.Boolean AllowFrameLock
+ S System.Int32 SleepTimeWaitCalled
+ S System.Boolean Obfuscate
+ S System.Boolean ObfuscateHard
+ S MemoryRobot.Memory \u0008\u2009
+ S System.Tuple`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]][] \u000F\u2009
+ S System.Int64 \u000E\u2009
+ S System.Int32 \u0002\u2001
+ S System.Int32 \u0008\u2001
+ S System.Object \u0006\u2001
+TYPES WITH HOOK FIELD/PROP
+FIELD robotManager.MemoryClass.StealthProtection \u0002
+FIELD wManager.Wow.Memory static WowMemory

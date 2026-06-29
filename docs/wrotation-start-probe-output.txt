@@ -1,0 +1,8 @@
+OPEN=True
+INGAME=True
+--before--
+IsAliveProduct=False
+IsStarted=False
+InPause=False
+ProductName=
+productObjERR=System.NullReferenceException:未将对象引用设置到对象的实例。

@@ -1,0 +1,18 @@
+PID=6336 TITLE=魔兽世界
+OPEN=True
+VALID=True
+INGAME=False
+PLAYER=Please connect to the game
+PULSE0=OK
+PULSE1=OK
+PULSE2=OK
+LIST=0 DICT=0
+ME_GetBaseAddress=0
+ME_IsValid=False
+ME_Name=Look
+ME_Level=0
+ME_HealthPercent=0
+ME_Position=0 ; 0 ; 0 ; "None"
+ME_InCombat=False
+ME_GetMove=False
+ME_HasTarget=False

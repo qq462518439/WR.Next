@@ -1,0 +1,103 @@
+<UserControl x:Class="WR.OriginalUiHost.ProcessManagementControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppWindowBrush}">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    Margin="0,0,0,14">
+            <TextBlock Text="进程管理"
+                       FontSize="22"
+                       FontWeight="SemiBold" />
+            <DockPanel Margin="0,5,0,0">
+                <TextBlock x:Name="StatusText"
+                           DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           Text=""
+                           Foreground="{DynamicResource AppSubtleTextBrush}"
+                           FontSize="13" />
+                <Button x:Name="RefreshButton"
+                        DockPanel.Dock="Right"
+                        Content="刷新"
+                        Padding="14,4"
+                        Click="OnRefreshClicked" />
+            </DockPanel>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1"
+                  x:Name="ProcessGrid"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserResizeRows="False"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                    IsReadOnly="True"
+                    RowHeight="38"
+                    ColumnHeaderHeight="36"
+                    SelectionMode="Single"
+                  Background="{DynamicResource AppSurfaceBrush}"
+                  Foreground="{DynamicResource AppTextBrush}"
+                  BorderThickness="0"
+                  RowBackground="{DynamicResource AppSurfaceBrush}"
+                  AlternatingRowBackground="{DynamicResource AppSurfaceAltBrush}"
+                  HorizontalGridLinesBrush="{DynamicResource AppBorderBrush}"
+                  VerticalGridLinesBrush="{DynamicResource AppBorderBrush}">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="{DynamicResource AppChromeBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+                    <Setter Property="Padding" Value="10,0" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                </Style>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="10,0" />
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="接管"
+                                        Binding="{Binding IsAttached, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        Width="70" />
+                <DataGridTextColumn Header="PID"
+                                    Binding="{Binding ProcessId}"
+                                    Width="80"
+                                    IsReadOnly="True" />
+                <DataGridTextColumn Header="窗口"
+                                    Binding="{Binding WindowTitle}"
+                                    Width="2*"
+                                    IsReadOnly="True" />
+                <DataGridTextColumn Header="角色"
+                                    Binding="{Binding CharacterName}"
+                                    Width="*"
+                                    IsReadOnly="True" />
+                <DataGridTextColumn Header="等级"
+                                    Binding="{Binding Level}"
+                                    Width="80"
+                                    IsReadOnly="True" />
+                <DataGridTextColumn Header="血量"
+                                    Binding="{Binding HealthPercent}"
+                                    Width="80"
+                                    IsReadOnly="True" />
+                <DataGridTextColumn Header="坐标"
+                                    Binding="{Binding Position}"
+                                    Width="2*"
+                                    IsReadOnly="True" />
+                <DataGridTextColumn Header="状态"
+                                    Binding="{Binding State}"
+                                    Width="2*"
+                                    IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</UserControl>

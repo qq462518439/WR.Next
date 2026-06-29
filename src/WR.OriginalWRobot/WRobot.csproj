@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>WRobot</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>True</UseWPF>
+    <TargetFramework>net45</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <WRRuntimeRoot Condition="'$(WRRuntimeRoot)' == ''">D:\666\RZB</WRRuntimeRoot>
+    <WRRuntimeLibraryRoot Condition="'$(WRRuntimeLibraryRoot)' == '' and Exists('$(WRRuntimeRoot)\Bin')">$(WRRuntimeRoot)\Bin</WRRuntimeLibraryRoot>
+    <WRRuntimeLibraryRoot Condition="'$(WRRuntimeLibraryRoot)' == ''">$(WRRuntimeRoot)</WRRuntimeLibraryRoot>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="24ba457cfedc47627d09fd8f7ba9bac5" />
+    <None Remove="-" />
+    <None Remove="b5ef76d72d1f4a87ddd70f240766e16b" />
+    <EmbeddedResource Include="24ba457cfedc47627d09fd8f7ba9bac5" LogicalName="24ba457cfedc47627d09fd8f7ba9bac5" />
+    <EmbeddedResource Include="-" LogicalName="          ​ " />
+    <EmbeddedResource Include="b5ef76d72d1f4a87ddd70f240766e16b" LogicalName="b5ef76d72d1f4a87ddd70f240766e16b" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="wManager">
+      <HintPath>$(WRRuntimeLibraryRoot)\wManager.dll</HintPath>
+    </Reference>
+    <Reference Include="robotManager">
+      <HintPath>$(WRRuntimeLibraryRoot)\robotManager.dll</HintPath>
+    </Reference>
+    <Reference Include="MahApps.Metro">
+      <HintPath>$(WRRuntimeLibraryRoot)\MahApps.Metro.dll</HintPath>
+    </Reference>
+    <Reference Include="MahApps.Metro.IconPacks.Material">
+      <HintPath>$(WRRuntimeLibraryRoot)\MahApps.Metro.IconPacks.Material.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="authManager">
+      <HintPath>$(WRRuntimeLibraryRoot)\authManager.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="MemoryRobot">
+      <HintPath>$(WRRuntimeLibraryRoot)\MemoryRobot.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

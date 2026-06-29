@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <WRRuntimeRoot Condition="'$(WRRuntimeRoot)' == ''">D:\666\RZB</WRRuntimeRoot>
+    <WRRuntimeLibraryRoot Condition="'$(WRRuntimeLibraryRoot)' == '' and Exists('$(WRRuntimeRoot)\Bin')">$(WRRuntimeRoot)\Bin</WRRuntimeLibraryRoot>
+    <WRRuntimeLibraryRoot Condition="'$(WRRuntimeLibraryRoot)' == ''">$(WRRuntimeRoot)</WRRuntimeLibraryRoot>
+    <WRRuntimeModulesRoot Condition="'$(WRRuntimeModulesRoot)' == ''">$(WRRuntimeRoot)</WRRuntimeModulesRoot>
+    <WRRuntimeProfilesRoot Condition="'$(WRRuntimeProfilesRoot)' == ''">$(WRRuntimeRoot)</WRRuntimeProfilesRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(WRRuntimeProfilesRoot)\Settings\**\*.*">
+      <Link>Settings\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(WRRuntimeProfilesRoot)\Profiles\**\*.*">
+      <Link>Profiles\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(WRRuntimeModulesRoot)\Plugins\**\*.*">
+      <Link>Plugins\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(WRRuntimeModulesRoot)\Products\**\*.*">
+      <Link>Products\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(WRRuntimeModulesRoot)\FightClass\**\*.*">
+      <Link>FightClass\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="App\App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="authManager">
+      <HintPath>$(WRRuntimeLibraryRoot)\authManager.dll</HintPath>
+    </Reference>
+    <Reference Include="ControlzEx">
+      <HintPath>$(WRRuntimeLibraryRoot)\ControlzEx.dll</HintPath>
+    </Reference>
+    <Reference Include="MahApps.Metro">
+      <HintPath>$(WRRuntimeLibraryRoot)\MahApps.Metro.dll</HintPath>
+    </Reference>
+    <Reference Include="MahApps.Metro.IconPacks.Material">
+      <HintPath>$(WRRuntimeLibraryRoot)\MahApps.Metro.IconPacks.Material.dll</HintPath>
+    </Reference>
+    <Reference Include="robotManager">
+      <HintPath>$(WRRuntimeLibraryRoot)\robotManager.dll</HintPath>
+    </Reference>
+    <Reference Include="wManager">
+      <HintPath>$(WRRuntimeLibraryRoot)\wManager.dll</HintPath>
+    </Reference>
+    <Reference Include="wResources">
+      <HintPath>$(WRRuntimeLibraryRoot)\wResources.dll</HintPath>
+    </Reference>
+    <Reference Include="MemoryRobot">
+      <HintPath>$(WRRuntimeLibraryRoot)\MemoryRobot.dll</HintPath>
+    </Reference>
+    <Reference Include="rStyle">
+      <HintPath>$(WRRuntimeLibraryRoot)\rStyle.dll</HintPath>
+    </Reference>
+    <Reference Include="UpdateManager">
+      <HintPath>$(WRRuntimeLibraryRoot)\UpdateManager.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

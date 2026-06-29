@@ -1,0 +1,352 @@
+ASM=robotManager, Version=1.0.0.20858, Culture=neutral, PublicKeyToken=null
+TYPE= IF=
+TYPE= IF=
+TYPE=+ IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=  IF= ,System.IDisposable
+TYPE= + IF=
+TYPE=  IF=
+TYPE=  IF= ,System.IDisposable
+TYPE=  IF=
+TYPE=   IF=  
+TYPE=  IF=
+TYPE=   IF=System.IDisposable
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=   IF=System.Runtime.InteropServices._Attribute
+TYPE=  IF=
+TYPE= + IF=
+TYPE=  IF=System.IDisposable
+TYPE=   IF=
+TYPE=  + IF=
+TYPE=  IF=
+TYPE=​ IF=
+TYPE= IF=System.IDisposable
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=   IF=
+TYPE=  + IF=  [[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],  ,  [[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],  ,  
+TYPE=  + IF=  [[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],  ,  [[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],  ,  
+TYPE=  + IF=  [[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],  ,  [[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],  ,  
+TYPE=  IF=
+TYPE=   IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=System.IDisposable
+TYPE= + IF=System.Security.Cryptography.ICryptoTransform,System.IDisposable
+TYPE=  IF=
+TYPE=​ IF=System.Runtime.InteropServices._Attribute
+TYPE= IF=System.IDisposable
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=   IF=  ,  
+TYPE=  IF=
+TYPE=   IF=System.IDisposable
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=   IF=System.Runtime.InteropServices._Attribute
+TYPE=  IF=
+TYPE=  IF= ,System.IDisposable
+TYPE=   IF=
+TYPE=  +a1 IF=
+TYPE=  IF=
+TYPE=​ IF=
+TYPE= IF=
+TYPE=  IF=System.IDisposable
+TYPE=  IF=
+TYPE= + IF=
+TYPE=  IF=
+TYPE=  IF=System.IDisposable
+TYPE=   IF=
+TYPE=  IF=
+TYPE=   IF=System.IEquatable`1[[  , robotManager, Version=1.0.0.20858, Culture=neutral, PublicKeyToken=null]]
+TYPE=  IF=
+TYPE=  IF=System.Runtime.InteropServices._Attribute
+TYPE=  IF=
+TYPE=   IF=System.Runtime.InteropServices._Attribute
+TYPE=  IF=
+TYPE=  IF=
+TYPE= + IF=System.IEquatable`1[[ +, robotManager, Version=1.0.0.20858, Culture=neutral, PublicKeyToken=null]]
+TYPE= +  IF=
+TYPE= +  IF=
+TYPE= + + IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + + IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + + IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + + IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + + IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + + IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + + IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + IF=
+TYPE= +  IF=
+TYPE= + IF=
+TYPE= +  IF=
+TYPE= + IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= +  IF=
+TYPE= + IF=
+TYPE= +  IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE= + IF=
+TYPE= +  IF=
+TYPE= + IF=
+TYPE= +  IF=System.IDisposable
+TYPE=   IF=
+TYPE=  IF=
+TYPE=​ IF=
+TYPE= IF=System.IDisposable
+TYPE= IF=
+TYPE=+ IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=+ IF=
+TYPE=  IF=System.Runtime.InteropServices._Attribute
+TYPE=  IF=System.IDisposable
+TYPE= + IF=
+TYPE= + IF=System.Security.Cryptography.ICryptoTransform,System.IDisposable
+TYPE=  IF= 
+TYPE=   IF=
+TYPE=  IF=
+TYPE=   IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF= 
+TYPE=   IF=
+TYPE=  IF= ,System.IDisposable
+TYPE=  IF= ,System.IDisposable
+TYPE=   IF=
+TYPE=  + IF=
+TYPE=  + IF=
+TYPE=  ++ IF=
+TYPE=  ++ IF=System.Collections.Generic.IEnumerable`1[[  ++, robotManager, Version=1.0.0.20858, Culture=neutral, PublicKeyToken=null]],System.Collections.IEnumerable,System.Collections.Generic.IEnumerator`1[[  ++, robotManager, Version=1.0.0.20858, Culture=neutral, PublicKeyToken=null]],System.IDisposable,System.Collections.IEnumerator
+TYPE=  ++ IF=
+TYPE=  + IF=
+TYPE=  + IF=
+TYPE=  ++ IF=System.IDisposable
+TYPE=  + IF=
+TYPE=  IF=
+TYPE=​ IF=
+TYPE= IF=System.Runtime.InteropServices._Attribute
+TYPE=  IF=
+TYPE= + IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=   IF=
+TYPE=  IF=
+TYPE=   IF=System.IDisposable
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=   IF=
+TYPE=  IF=
+TYPE= + IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=​ IF=
+TYPE= IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=   IF=
+TYPE=  IF=
+TYPE=   IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE=  IF=
+TYPE= + IF=System.IDisposable
+TYPE= + IF=System.IDisposable
+TYPE= + IF=
+TYPE=  IF=
+TYPE=   IF=
+TYPE=  + IF=
+TYPE=  +  IF=
+TYPE=  + IF=
+TYPE=  + IF=
+TYPE=  + IF=
+TYPE=  + IF=
+TYPE=  + IF=
+TYPE=  + IF=
+TYPE=  IF=
+TYPE= + IF=
+TYPE=​ IF=
+TYPE=IWshRuntimeLibrary.IWshShell IF=
+TYPE=IWshRuntimeLibrary.IWshShell2 IF=IWshRuntimeLibrary.IWshShell
+TYPE=IWshRuntimeLibrary.IWshShell3 IF=IWshRuntimeLibrary.IWshShell2,IWshRuntimeLibrary.IWshShell
+TYPE=IWshRuntimeLibrary.IWshShortcut IF=
+TYPE=IWshRuntimeLibrary.WshShell IF=IWshRuntimeLibrary.IWshShell3,IWshRuntimeLibrary.IWshShell2,IWshRuntimeLibrary.IWshShell
+TYPE=pc1eOx2WJVV_1520121445 IF=
+TYPE=robotManager.Events.CancelableHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Events.Events IF=
+TYPE=robotManager.Events.Events+ IF=
+TYPE=robotManager.Events.FiniteStateMachineEvents IF=
+TYPE=robotManager.Events.FiniteStateMachineEvents+ IF=
+TYPE=robotManager.Events.FiniteStateMachineEvents+FSMEngineHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Events.FiniteStateMachineEvents+FSMEngineStateCancelableHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Events.FiniteStateMachineEvents+FSMEngineStateHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Events.FiniteStateMachineEvents+FSMStateCancelableHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Events.LoggingEvents IF=
+TYPE=robotManager.Events.LoggingEvents+ IF=
+TYPE=robotManager.Events.LoggingEvents+LogHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Events.ProductEvents IF=
+TYPE=robotManager.Events.ProductEvents+ IF=
+TYPE=robotManager.Events.SimpleHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Events.StringArgsCancelableHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Events.StringCancelableHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Events.StringHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.FiniteStateMachine.Engine IF=
+TYPE=robotManager.FiniteStateMachine.State IF=System.IComparable`1[[robotManager.FiniteStateMachine.State, robotManager, Version=1.0.0.20858, Culture=neutral, PublicKeyToken=null]],System.Collections.Generic.IComparer`1[[robotManager.FiniteStateMachine.State, robotManager, Version=1.0.0.20858, Culture=neutral, PublicKeyToken=null]]
+TYPE=robotManager.Helpful.Args IF=
+TYPE=robotManager.Helpful.ArgsParser IF=
+TYPE=robotManager.Helpful.BinarySerializer IF=
+TYPE=robotManager.Helpful.CacheManager`1 IF=
+TYPE=robotManager.Helpful.CustomUrlProtocol IF=
+TYPE=robotManager.Helpful.Display IF=
+TYPE=robotManager.Helpful.Display+ IF=
+TYPE=robotManager.Helpful.Extensions IF=
+TYPE=robotManager.Helpful.Forms.DownloadContents IF=System.Windows.Media.Composition.DUCE+IResource,System.Windows.Media.Animation.IAnimatable,System.Windows.IInputElement,System.Windows.IFrameworkInputElement,System.ComponentModel.ISupportInitialize,System.Windows.Markup.IHaveResources,System.Windows.Markup.IQueryAmbient,System.Windows.Markup.IAddChild,System.Windows.IWindowService,System.Windows.Markup.IComponentConnector,System.Windows.Markup.IStyleConnector
+TYPE=robotManager.Helpful.Forms.DownloadContents+ IF=
+TYPE=robotManager.Helpful.Forms.DownloadContents+ IF=
+TYPE=robotManager.Helpful.Forms.DownloadContents+ IF=
+TYPE=robotManager.Helpful.Forms.DownloadContents+ IF=
+TYPE=robotManager.Helpful.Forms.DownloadEntry IF=
+TYPE=robotManager.Helpful.Forms.DownloadList IF=
+TYPE=robotManager.Helpful.Forms.InputBoxMultiline IF=System.ComponentModel.IComponent,System.IDisposable,System.Windows.Forms.UnsafeNativeMethods+IOleControl,System.Windows.Forms.UnsafeNativeMethods+IOleObject,System.Windows.Forms.UnsafeNativeMethods+IOleInPlaceObject,System.Windows.Forms.UnsafeNativeMethods+IOleInPlaceActiveObject,System.Windows.Forms.UnsafeNativeMethods+IOleWindow,System.Windows.Forms.UnsafeNativeMethods+IViewObject,System.Windows.Forms.UnsafeNativeMethods+IViewObject2,System.Windows.Forms.UnsafeNativeMethods+IPersist,System.Windows.Forms.UnsafeNativeMethods+IPersistStreamInit,System.Windows.Forms.UnsafeNativeMethods+IPersistPropertyBag,System.Windows.Forms.UnsafeNativeMethods+IPersistStorage,System.Windows.Forms.UnsafeNativeMethods+IQuickActivate,System.Windows.Forms.ISupportOleDropSource,System.Windows.Forms.IDropTarget,System.ComponentModel.ISynchronizeInvoke,System.Windows.Forms.IWin32Window,System.Windows.Forms.Layout.IArrangedElement,System.Windows.Forms.IBindableComponent,System.Windows.Forms.IKeyboardToolTip,System.Windows.Forms.IContainerControl
+TYPE=robotManager.Helpful.Forms.PopUpPropertyGrid IF=System.ComponentModel.IComponent,System.IDisposable,System.Windows.Forms.UnsafeNativeMethods+IOleControl,System.Windows.Forms.UnsafeNativeMethods+IOleObject,System.Windows.Forms.UnsafeNativeMethods+IOleInPlaceObject,System.Windows.Forms.UnsafeNativeMethods+IOleInPlaceActiveObject,System.Windows.Forms.UnsafeNativeMethods+IOleWindow,System.Windows.Forms.UnsafeNativeMethods+IViewObject,System.Windows.Forms.UnsafeNativeMethods+IViewObject2,System.Windows.Forms.UnsafeNativeMethods+IPersist,System.Windows.Forms.UnsafeNativeMethods+IPersistStreamInit,System.Windows.Forms.UnsafeNativeMethods+IPersistPropertyBag,System.Windows.Forms.UnsafeNativeMethods+IPersistStorage,System.Windows.Forms.UnsafeNativeMethods+IQuickActivate,System.Windows.Forms.ISupportOleDropSource,System.Windows.Forms.IDropTarget,System.ComponentModel.ISynchronizeInvoke,System.Windows.Forms.IWin32Window,System.Windows.Forms.Layout.IArrangedElement,System.Windows.Forms.IBindableComponent,System.Windows.Forms.IKeyboardToolTip,System.Windows.Forms.IContainerControl
+TYPE=robotManager.Helpful.Forms.TranslateToolsWindow IF=System.Windows.Media.Composition.DUCE+IResource,System.Windows.Media.Animation.IAnimatable,System.Windows.IInputElement,System.Windows.IFrameworkInputElement,System.ComponentModel.ISupportInitialize,System.Windows.Markup.IHaveResources,System.Windows.Markup.IQueryAmbient,System.Windows.Markup.IAddChild,System.Windows.IWindowService,System.Windows.Markup.IComponentConnector
+TYPE=robotManager.Helpful.Forms.TranslateToolsWindow+ IF=
+TYPE=robotManager.Helpful.Forms.UserControls.LoggingUserControl IF=System.Windows.Media.Composition.DUCE+IResource,System.Windows.Media.Animation.IAnimatable,System.Windows.IInputElement,System.Windows.IFrameworkInputElement,System.ComponentModel.ISupportInitialize,System.Windows.Markup.IHaveResources,System.Windows.Markup.IQueryAmbient,System.Windows.Markup.IAddChild,System.Windows.Markup.IComponentConnector
+TYPE=robotManager.Helpful.GZip IF=
+TYPE=robotManager.Helpful.GraphicsExtensions IF=
+TYPE=robotManager.Helpful.IniFile IF=
+TYPE=robotManager.Helpful.KeyPressedEventArgs IF=
+TYPE=robotManager.Helpful.Keyboard IF=
+TYPE=robotManager.Helpful.KeyboardHook IF=System.IDisposable
+TYPE=robotManager.Helpful.KeyboardHook+ IF=System.Windows.Forms.IWin32Window,System.IDisposable
+TYPE=robotManager.Helpful.Logging IF=
+TYPE=robotManager.Helpful.Logging+ IF=
+TYPE=robotManager.Helpful.Logging+ IF=
+TYPE=robotManager.Helpful.Logging+ IF=
+TYPE=robotManager.Helpful.Logging+Log IF=
+TYPE=robotManager.Helpful.Logging+LogType IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.Logging+LoggingChangeEventArgs IF=
+TYPE=robotManager.Helpful.Logging+LoggingChangeEventHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Helpful.Logging+StatusChangeEventArgs IF=
+TYPE=robotManager.Helpful.Logging+StatusChangeEventHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Helpful.LuaBot IF=
+TYPE=robotManager.Helpful.Math IF=
+TYPE=robotManager.Helpful.ModifierKeys IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.Mouse IF=
+TYPE=robotManager.Helpful.Others IF=
+TYPE=robotManager.Helpful.Others+ IF=
+TYPE=robotManager.Helpful.Others+  IF=System.Runtime.CompilerServices.IAsyncStateMachine
+TYPE=robotManager.Helpful.Others+ IF=System.Runtime.CompilerServices.IAsyncStateMachine
+TYPE=robotManager.Helpful.Others+ IF=
+TYPE=robotManager.Helpful.Others+ IF=
+TYPE=robotManager.Helpful.Others+ IF=
+TYPE=robotManager.Helpful.Others+ IF=System.Runtime.CompilerServices.IAsyncStateMachine
+TYPE=robotManager.Helpful.Others+ IF=
+TYPE=robotManager.Helpful.RunCode IF=
+TYPE=robotManager.Helpful.RunCode+ IF=
+TYPE=robotManager.Helpful.RunCode+ IF=
+TYPE=robotManager.Helpful.RunCode+CodeType IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.ScintillaStyles IF=
+TYPE=robotManager.Helpful.Settings IF=
+TYPE=robotManager.Helpful.Timer IF=
+TYPE=robotManager.Helpful.Utf8StringWriter IF=System.IDisposable
+TYPE=robotManager.Helpful.Var IF=
+TYPE=robotManager.Helpful.Vector3 IF=System.Xml.Serialization.IXmlSerializable
+TYPE=robotManager.Helpful.Win32.Native IF=
+TYPE=robotManager.Helpful.Win32.Native+ChangeWindowMessageFilterFlags IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.Win32.Native+CompositionAction IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.Win32.Native+ConsoleEventHandlerDelegate IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Helpful.Win32.Native+ConsoleHandlerEventCode IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.Win32.Native+DisplayAffinity IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.Win32.Native+PROCESS_INFORMATION IF=
+TYPE=robotManager.Helpful.Win32.Native+ProcessCreationFlags IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.Win32.Native+RECT IF=
+TYPE=robotManager.Helpful.Win32.Native+STARTUPINFO IF=
+TYPE=robotManager.Helpful.Win32.Native+ThreadAccess IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.Win32.UnreservedVK IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.Win32.VK IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.Helpful.XmlSerializer IF=
+TYPE=robotManager.LanguageExport IF=
+TYPE=robotManager.LanguageText IF=
+TYPE=robotManager.MemoryClass.AllocManager IF=System.IDisposable
+TYPE=robotManager.MemoryClass.AllocManager+ IF=
+TYPE=robotManager.MemoryClass.AllocManager+ IF=
+TYPE=robotManager.MemoryClass.AllocManager+ IF=
+TYPE=robotManager.MemoryClass.D3D IF=
+TYPE=robotManager.MemoryClass.Hook IF=System.IDisposable
+TYPE=robotManager.MemoryClass.Hook+ IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.MemoryClass.Hook+ IF=
+TYPE=robotManager.MemoryClass.Hook+ IF=
+TYPE=robotManager.MemoryClass.Hook+ IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=robotManager.MemoryClass.StealthProtection IF=System.IDisposable
+TYPE=robotManager.Products.IProduct IF=
+TYPE=robotManager.Products.Products IF=
+TYPE=robotManager.Products.Products+IsAliveProductChangeEventArgs IF=
+TYPE=robotManager.Products.Products+IsAliveProductChangeEventHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Products.Products+IsStartedChangeEventArgs IF=
+TYPE=robotManager.Products.Products+IsStartedChangeEventHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Products.Products+ProductNeedSettingsEventArgs IF=
+TYPE=robotManager.Products.Products+ProductNeedSettingsEventHandler IF=System.ICloneable,System.Runtime.Serialization.ISerializable
+TYPE=robotManager.Translate IF=
+TYPE=robotManager.robotManagerGlobalSetting IF=
+ASM=WRotation, Version=1.0.0.38014, Culture=neutral, PublicKeyToken=null
+TYPE= IF=
+TYPE= IF=
+TYPE=+ IF=System.IComparable,System.IFormattable,System.IConvertible
+TYPE=+ IF=
+TYPE=  IF=
+TYPE= IF=
+TYPE=+ IF=[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],,[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],,
+TYPE=+ IF=[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],,[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],,
+TYPE=+ IF=[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],,[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],,
+TYPE=  IF=
+TYPE= + IF=
+TYPE= +  IF=
+TYPE= + IF=
+TYPE= + IF=
+TYPE= + IF=
+TYPE= + IF=
+TYPE= + IF=
+TYPE= + IF=
+TYPE= IF=,
+TYPE=  IF=
+TYPE= IF=
+TYPE=  IF=
+TYPE= + IF=
+TYPE= IF=
+TYPE=  IF=System.IComparable`1[[robotManager.FiniteStateMachine.State, robotManager, Version=1.0.0.20858, Culture=neutral, PublicKeyToken=null]],System.Collections.Generic.IComparer`1[[robotManager.FiniteStateMachine.State, robotManager, Version=1.0.0.20858, Culture=neutral, PublicKeyToken=null]]
+TYPE= IF=
+TYPE= IF=
+TYPE=  IF=
+TYPE= + IF=
+TYPE= + IF=
+TYPE= + IF=
+TYPE= + IF=
+TYPE= ++ IF=
+TYPE= ++ IF=System.Collections.Generic.IEnumerable`1[[ ++, WRotation, Version=1.0.0.38014, Culture=neutral, PublicKeyToken=null]],System.Collections.IEnumerable,System.Collections.Generic.IEnumerator`1[[ ++, WRotation, Version=1.0.0.38014, Culture=neutral, PublicKeyToken=null]],System.IDisposable,System.Collections.IEnumerator
+TYPE= ++ IF=
+TYPE=Main IF=robotManager.Products.IProduct
+TYPE=WRotation.Bot.WRotationSetting IF=
+TYPE=WRotation.SettingsUserControl IF=System.Windows.Media.Composition.DUCE+IResource,System.Windows.Media.Animation.IAnimatable,System.Windows.IInputElement,System.Windows.IFrameworkInputElement,System.ComponentModel.ISupportInitialize,System.Windows.Markup.IHaveResources,System.Windows.Markup.IQueryAmbient,System.Windows.Markup.IAddChild,System.Windows.Markup.IComponentConnector
+TYPE=pc1eOx2WJVV1860416525 IF=

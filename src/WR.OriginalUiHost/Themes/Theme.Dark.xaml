@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="Theme.WindowColor">#FF111418</Color>
+    <Color x:Key="Theme.ChromeColor">#FF15191E</Color>
+    <Color x:Key="Theme.PanelColor">#FF1B1F25</Color>
+    <Color x:Key="Theme.PanelAltColor">#FF242A32</Color>
+    <Color x:Key="Theme.SurfaceColor">#FF101419</Color>
+    <Color x:Key="Theme.SurfaceAltColor">#FF151A20</Color>
+    <Color x:Key="Theme.ControlColor">#FF1F252D</Color>
+    <Color x:Key="Theme.BorderColor">#FF404854</Color>
+    <Color x:Key="Theme.BorderStrongColor">#FF4D5968</Color>
+    <Color x:Key="Theme.TextColor">#FFE9EDF2</Color>
+    <Color x:Key="Theme.TextMutedColor">#FFBAC3D0</Color>
+    <Color x:Key="Theme.TextSubtleColor">#FF9DAABC</Color>
+    <Color x:Key="Theme.TextDangerColor">#FFF3C7C7</Color>
+    <Color x:Key="Theme.SelectionColor">#FF2A5876</Color>
+    <Color x:Key="Theme.SelectionTextColor">#FFFFFFFF</Color>
+
+    <SolidColorBrush x:Key="AppWindowBrush" Color="{StaticResource Theme.WindowColor}" />
+    <SolidColorBrush x:Key="AppChromeBrush" Color="{StaticResource Theme.ChromeColor}" />
+    <SolidColorBrush x:Key="AppPanelBrush" Color="{StaticResource Theme.PanelColor}" />
+    <SolidColorBrush x:Key="AppPanelAltBrush" Color="{StaticResource Theme.PanelAltColor}" />
+    <SolidColorBrush x:Key="AppSurfaceBrush" Color="{StaticResource Theme.SurfaceColor}" />
+    <SolidColorBrush x:Key="AppSurfaceAltBrush" Color="{StaticResource Theme.SurfaceAltColor}" />
+    <SolidColorBrush x:Key="AppControlBrush" Color="{StaticResource Theme.ControlColor}" />
+    <SolidColorBrush x:Key="AppBorderBrush" Color="{StaticResource Theme.BorderColor}" />
+    <SolidColorBrush x:Key="AppBorderStrongBrush" Color="{StaticResource Theme.BorderStrongColor}" />
+    <SolidColorBrush x:Key="AppTextBrush" Color="{StaticResource Theme.TextColor}" />
+    <SolidColorBrush x:Key="AppMutedTextBrush" Color="{StaticResource Theme.TextMutedColor}" />
+    <SolidColorBrush x:Key="AppSubtleTextBrush" Color="{StaticResource Theme.TextSubtleColor}" />
+    <SolidColorBrush x:Key="AppDangerTextBrush" Color="{StaticResource Theme.TextDangerColor}" />
+    <SolidColorBrush x:Key="AppSelectionBrush" Color="{StaticResource Theme.SelectionColor}" />
+    <SolidColorBrush x:Key="AppSelectionTextBrush" Color="{StaticResource Theme.SelectionTextColor}" />
+</ResourceDictionary>
