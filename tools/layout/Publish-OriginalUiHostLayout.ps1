@@ -119,7 +119,9 @@ Ensure-Directory -Path $settingsRoot
 $rootFiles = @(
     (Join-Path $BuildRoot "WR.OriginalUiHost.exe"),
     (Join-Path $BuildRoot "WR.OriginalUiHost.exe.config"),
-    (Join-Path $BuildRoot "WR.OriginalUiHost.pdb")
+    (Join-Path $BuildRoot "WR.OriginalUiHost.pdb"),
+    (Join-Path $RuntimeSourceRoot "WRobot.exe"),
+    (Join-Path $RuntimeSourceRoot "WRobot.exe.config")
 )
 
 Copy-FileSet -Paths $rootFiles -Destination $OutputRoot

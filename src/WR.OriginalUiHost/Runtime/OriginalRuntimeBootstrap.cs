@@ -315,6 +315,7 @@ namespace WR.OriginalUiHost
                 }
 
                 MovementManager.LaunchThreadMovementManager();
+                WriteBattleTimeline("startfight-enter", BuildBattleExecutionStateSnapshot("before-startfight"));
                 var targetGuid = target.Guid;
                 var targetName = target.Name;
                 var targetDistance = target.GetDistance;
@@ -326,6 +327,8 @@ namespace WR.OriginalUiHost
                     stopIfPlayerTargetChange: false,
                     rotationBot: true);
                 Thread.Sleep(180);
+                var afterSummary = BuildBattleExecutionStateSnapshot("after-startfight");
+                WriteBattleTimeline("startfight-exit", afterSummary);
 
                 return OriginalRuntimeActionResult.Success(
                     "已调用原版开战链; target=" + targetName +
@@ -334,10 +337,13 @@ namespace WR.OriginalUiHost
                     " returnedGuid=" + fightResultGuid +
                     " currentFight=" + Fight.InFight +
                     " meHasTarget=" + ObjectManager.Me.HasTarget +
-                    " meMoving=" + ObjectManager.Me.GetMove);
+                    " meMoving=" + ObjectManager.Me.GetMove +
+                    " customClassAlive=" + CustomClass.IsAliveCustomClass +
+                    " spellBookCount=" + SafeGetSpellBookCount());
             }
             catch (Exception ex)
             {
+                WriteBattleTimeline("startfight-exception", ex.GetType().Name + ": " + ex.Message);
                 return OriginalRuntimeActionResult.Fail("开始战斗失败: " + ex.GetType().Name + ": " + ex.Message);
             }
         }
@@ -465,8 +471,30 @@ namespace WR.OriginalUiHost
                     }
 
                     var productName = Products.ProductName ?? "unknown";
-                    var stopResult = Products.ProductStop();
                     Products.InPause = true;
+                    WriteProductAction("ProductStop pre-stop pause=True");
+
+                    try
+                    {
+                        Fight.StopFight();
+                        WriteProductAction("ProductStop pre-stop fight-stop ok");
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteProductAction("ProductStop pre-stop fight-stop failed " + ex.GetType().Name + ": " + ex.Message);
+                    }
+
+                    try
+                    {
+                        MovementManager.StopMoveTo();
+                        WriteProductAction("ProductStop pre-stop move-stop ok");
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteProductAction("ProductStop pre-stop move-stop failed " + ex.GetType().Name + ": " + ex.Message);
+                    }
+
+                    var stopResult = Products.ProductStop();
                     _lastProductStartResult = stopResult
                         ? OriginalRuntimeActionResult.Success("原版产品已停止: " + productName)
                         : OriginalRuntimeActionResult.Fail("原版产品停止失败: " + productName);
@@ -494,6 +522,26 @@ namespace WR.OriginalUiHost
                     }
 
                     Products.InPause = true;
+                    try
+                    {
+                        Fight.StopFight();
+                        WriteProductAction("ProductPause pre-stop fight-stop ok");
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteProductAction("ProductPause pre-stop fight-stop failed " + ex.GetType().Name + ": " + ex.Message);
+                    }
+
+                    try
+                    {
+                        MovementManager.StopMoveTo();
+                        WriteProductAction("ProductPause pre-stop move-stop ok");
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteProductAction("ProductPause pre-stop move-stop failed " + ex.GetType().Name + ": " + ex.Message);
+                    }
+
                     _lastProductStartResult = OriginalRuntimeActionResult.Success("原版产品已暂停: " + (Products.ProductName ?? "unknown"));
                     WriteProductAction("ProductPause " + _lastProductStartResult.Message);
                     return _lastProductStartResult;
@@ -561,6 +609,8 @@ namespace WR.OriginalUiHost
                 {
                     return OriginalRuntimeAttachResult.Fail("Memory.Open 失败或进程句柄无效");
                 }
+
+                EnsureOriginalHookPulse(processId, "read-snapshot");
 
                 var isInGame = wManager.Wow.Memory.IsInGame(processId);
                 var playerName = wManager.Wow.Memory.PlayerName(processId);
@@ -663,6 +713,68 @@ namespace WR.OriginalUiHost
             return hook;
         }
 
+        private static bool IsWowHookThreadReady()
+        {
+            try
+            {
+                var hook = wManager.Wow.Memory.WowMemory;
+                return hook != null &&
+                       hook.Memory != null &&
+                       hook.Memory.IsValidAndOpenProcess() &&
+                       hook.ThreadHooked &&
+                       !string.IsNullOrWhiteSpace(hook.RetnToHookCode);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void EnsureOriginalHookPulse(int processId, string stage)
+        {
+            try
+            {
+                if (processId <= 0)
+                {
+                    WriteProductAction("hook-pulse " + stage + " skip invalid-process");
+                    return;
+                }
+
+                if (IsWowHookThreadReady())
+                {
+                    WriteProductAction("hook-pulse " + stage + " skip already-ready");
+                    return;
+                }
+
+                WriteProductAction("hook-pulse " + stage + " state-before " + BuildHookActivationSnapshot(processId, "before"));
+                WriteProductAction("hook-pulse " + stage + " begin pid=" + processId);
+                wManager.Pulsator.Pulse(processId);
+                var ready = WaitForHookThreadReady(2500, 100);
+                WriteProductAction("hook-pulse " + stage + " state-after " + BuildHookActivationSnapshot(processId, "after"));
+                WriteProductAction("hook-pulse " + stage + " end ready=" + ready);
+            }
+            catch (Exception ex)
+            {
+                WriteProductAction("hook-pulse " + stage + " failed " + ex.GetType().Name + ": " + ex.Message);
+            }
+        }
+
+        private bool WaitForHookThreadReady(int timeoutMs, int pollMs)
+        {
+            var startedAt = Environment.TickCount;
+            while (Environment.TickCount - startedAt < timeoutMs)
+            {
+                if (IsWowHookThreadReady())
+                {
+                    return true;
+                }
+
+                Thread.Sleep(pollMs);
+            }
+
+            return IsWowHookThreadReady();
+        }
+
         private OriginalRuntimeActionResult EnsureOriginalProductStarted()
         {
             try
@@ -679,6 +791,16 @@ namespace WR.OriginalUiHost
                     " runtimeState=" + (attachResult.RuntimeState ?? "-") +
                     " character=" + (attachResult.CharacterName ?? "-") +
                     " hasTarget=" + (attachResult.HasTarget ?? "-"));
+
+                EnsureOriginalHookPulse(_attachedProcessId, "ensure-product-start");
+
+                if (!IsWowHookThreadReady())
+                {
+                    WriteProductAction("hook-thread-check failed threadHooked=False");
+                    return OriginalRuntimeActionResult.Fail("原版 Hook 线程未就绪，禁止进入战斗产品链");
+                }
+
+                WriteProductAction("hook-thread-check ok threadHooked=True");
 
                 if (!Products.IsAliveProduct)
                 {
@@ -1198,6 +1320,181 @@ namespace WR.OriginalUiHost
             catch
             {
             }
+        }
+
+        private void WriteBattleTimeline(string stage, string details)
+        {
+            try
+            {
+                var path = Path.Combine(_runtimeRoot, "Logs", "battle-execution-timeline.txt");
+                File.AppendAllText(
+                    path,
+                    DateTime.Now.ToString("s") + " " + stage + Environment.NewLine +
+                    details + Environment.NewLine,
+                    System.Text.Encoding.UTF8);
+            }
+            catch
+            {
+            }
+        }
+
+        private string BuildBattleExecutionStateSnapshot(string label)
+        {
+            try
+            {
+                var me = ObjectManager.Me;
+                var target = me?.TargetObject;
+                var fightTarget = Fight.CurrentTarget;
+                var spellBookCount = SafeGetSpellBookCount();
+                var spellBookReady = spellBookCount >= 0;
+                var customClassAlive = CustomClass.IsAliveCustomClass;
+                var customClassRange = SafeGetCustomClassRange();
+                var targetValid = target != null && target.IsValid;
+                var fightTargetValid = fightTarget != null && fightTarget.IsValid;
+
+                return string.Join(
+                    Environment.NewLine,
+                    "label=" + label,
+                    "product=" + (Products.ProductName ?? "null") +
+                    " alive=" + Products.IsAliveProduct +
+                    " started=" + Products.IsStarted +
+                    " pause=" + Products.InPause,
+                    "me.inGame=" + Conditions.InGameAndConnectedAndAliveAndProductStartedNotInPause +
+                    " me.inCombat=" + me?.InCombat +
+                    " me.moving=" + me?.GetMove +
+                    " me.casting=" + me?.IsCast +
+                    " me.hasTarget=" + me?.HasTarget +
+                    " me.ctm=" + ClickToMove.GetClickToMoveTypePush() +
+                    " me.ctmInMove=" + ClickToMove.InMove,
+                    "target.valid=" + targetValid +
+                    " target.name=" + (targetValid ? target.Name : "-") +
+                    " target.guid=" + (targetValid ? target.Guid.ToString() : "0") +
+                    " target.distance=" + (targetValid ? target.GetDistance.ToString("0.00") : "-") +
+                    " target.attackable=" + (targetValid ? target.IsAttackable.ToString() : "-") +
+                    " target.dead=" + (targetValid ? target.IsDead.ToString() : "-") +
+                    " target.myTarget=" + (targetValid ? target.IsMyTarget.ToString() : "-") +
+                    " target.inCombatWithMe=" + (targetValid ? target.InCombatWithMe.ToString() : "-"),
+                    "fight.inFight=" + Fight.InFight +
+                    " fight.currentTargetValid=" + fightTargetValid +
+                    " fight.currentTarget=" + (fightTargetValid ? fightTarget.Name : "-") +
+                    " fight.currentGuid=" + (fightTargetValid ? fightTarget.Guid.ToString() : "0") +
+                    " fight.combatMs=" + Fight.CombatStartSince,
+                    "customClass.alive=" + customClassAlive +
+                    " customClass.range=" + customClassRange.ToString("0.00") +
+                    " selected=" + (wManagerSetting.CurrentSetting?.CustomClass ?? "null"),
+                    "spellBook.ready=" + spellBookReady +
+                    " spellBook.count=" + spellBookCount +
+                    " pathfinder.use=" + (wManagerSetting.CurrentSetting?.UsePathsFinder.ToString() ?? "null") +
+                    " blacklistIfNoPath=" + (wManagerSetting.CurrentSetting?.BlackListIfNotCompletePath.ToString() ?? "null"));
+            }
+            catch (Exception ex)
+            {
+                return "label=" + label + Environment.NewLine +
+                       "snapshot-error=" + ex.GetType().Name + ": " + ex.Message;
+            }
+        }
+
+        private static int SafeGetSpellBookCount()
+        {
+            try
+            {
+                var spells = SpellManager.SpellBook();
+                return spells?.Count ?? 0;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        private static float SafeGetCustomClassRange()
+        {
+            try
+            {
+                return CustomClass.GetRange;
+            }
+            catch
+            {
+                return -1f;
+            }
+        }
+
+        private static string BuildHookActivationSnapshot(int processId, string label)
+        {
+            try
+            {
+                var hook = wManager.Wow.Memory.WowMemory;
+                var args = robotManager.Helpful.ArgsParser.GetArgs;
+                var memory = hook?.Memory;
+                var memoryOpen = memory != null && memory.IsValidAndOpenProcess();
+                var detourAddress = SafeGetDetourAddress(processId);
+                var originalOpCodeLength = SafeGetOriginalOpCodeLength(processId);
+                var detourInUse = SafeGetDetourInUse(hook);
+
+                return string.Join(
+                    " ",
+                    "label=" + label,
+                    "pid=" + processId,
+                    "memoryOpen=" + memoryOpen,
+                    "hookNull=" + (hook == null),
+                    "threadHooked=" + (hook?.ThreadHooked.ToString() ?? "null"),
+                    "retnReady=" + (!string.IsNullOrWhiteSpace(hook?.RetnToHookCode)),
+                    "detourInUse=" + detourInUse,
+                    "detourAddress=0x" + detourAddress.ToString("X"),
+                    "originalOpCodeLength=" + originalOpCodeLength,
+                    "args.processId=" + (args?.ProcessId.ToString() ?? "null"),
+                    "args.product=" + QuoteForLog(args?.Product),
+                    "args.noDx=" + (args?.NoDx.ToString() ?? "null"),
+                    "args.dx=" + (args?.Dx.ToString() ?? "null"),
+                    "args.noLockFrame=" + (args?.NoLockFrame.ToString() ?? "null"),
+                    "args.autoStart=" + (args?.AutoStart.ToString() ?? "null"),
+                    "args.logInject=" + (args?.LogInject.ToString() ?? "null"));
+            }
+            catch (Exception ex)
+            {
+                return "label=" + label + " snapshot-error=" + ex.GetType().Name + ": " + ex.Message;
+            }
+        }
+
+        private static uint SafeGetDetourAddress(int processId)
+        {
+            try
+            {
+                return processId > 0 ? wManager.Wow.Memory.DetourAddress(processId) : 0u;
+            }
+            catch
+            {
+                return 0u;
+            }
+        }
+
+        private static int SafeGetOriginalOpCodeLength(int processId)
+        {
+            try
+            {
+                return processId > 0 ? (wManager.Wow.Memory.OriginalOpCode(processId)?.Length ?? 0) : 0;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        private static string SafeGetDetourInUse(Hook hook)
+        {
+            try
+            {
+                return hook == null ? "null" : hook.DetourInUse().ToString();
+            }
+            catch (Exception ex)
+            {
+                return "error:" + ex.GetType().Name;
+            }
+        }
+
+        private static string QuoteForLog(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? "\"\"" : "\"" + value.Replace("\"", "'") + "\"";
         }
 
         private static OriginalRuntimeSnapshot ReadObjectManagerSnapshot()

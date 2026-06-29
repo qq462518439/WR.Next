@@ -11,7 +11,7 @@ namespace WR.OriginalUiHost
         private OriginalRuntimePaths(string root)
         {
             Root = root;
-            RuntimeAssemblyRoot = ResolveFirstExisting(root, Path.Combine(root, "Bin"));
+            RuntimeAssemblyRoot = ResolveFirstExisting(Path.Combine(root, "Bin"), root);
             DataRoot = ResolveFirstExisting(Path.Combine(root, "Data"), Path.Combine(root, "data", "Data"));
             LogsRoot = ResolveFirstExisting(Path.Combine(root, "logs"), Path.Combine(root, "Logs"));
             ModulesRoot = root;

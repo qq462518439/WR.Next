@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Controls;
 using System.Windows;
@@ -25,6 +26,7 @@ namespace WR.OriginalUiHost
             WriteStartupLog("CurrentDirectory=" + Directory.GetCurrentDirectory());
             WriteStartupLog("RuntimeRoot=" + Paths.Root);
             PreloadNativeBridgeAssemblies();
+            WriteOriginalEntrySelfCheck();
             TryLoadStyleResources();
             base.OnStartup(e);
             MainWindow = new MainWindow();
@@ -34,8 +36,43 @@ namespace WR.OriginalUiHost
 
         private static void PreloadNativeBridgeAssemblies()
         {
+            TryPreloadOriginalHostAssembly();
             TryPreloadAssembly("RDManaged.dll");
             TryPreloadAssembly("fasmdll_managed.dll");
+        }
+
+        private static void TryPreloadOriginalHostAssembly()
+        {
+            try
+            {
+                var candidates = new[]
+                {
+                    Path.Combine(Paths.Root, "WRobot.exe"),
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "WRobot.exe")
+                };
+
+                foreach (var candidate in candidates)
+                {
+                    if (!File.Exists(candidate))
+                    {
+                        continue;
+                    }
+
+                    var loadedAssembly = Assembly.LoadFrom(candidate);
+                    var hasLaunchingType = loadedAssembly.GetType("WRobot.Launching", throwOnError: false) != null;
+                    WriteStartupLog(
+                        "Preload original-host => " + loadedAssembly.FullName +
+                        " from " + candidate +
+                        " launching=" + hasLaunchingType);
+                    return;
+                }
+
+                WriteStartupLog("Preload original-host missing WRobot.exe");
+            }
+            catch (Exception ex)
+            {
+                WriteStartupLog("Preload original-host failed " + ex.GetType().Name + ": " + ex.Message);
+            }
         }
 
         private static void TryPreloadAssembly(string fileName)
@@ -83,6 +120,39 @@ namespace WR.OriginalUiHost
             catch (Exception ex)
             {
                 WriteStartupLog("rStyle generic.xaml load failed " + ex.GetType().Name + ": " + ex.Message);
+            }
+        }
+
+        private static void WriteOriginalEntrySelfCheck()
+        {
+            try
+            {
+                var launchingType = AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(assembly =>
+                    {
+                        try
+                        {
+                            return assembly.GetType("WRobot.Launching", throwOnError: false);
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    })
+                    .FirstOrDefault(type => type != null);
+
+                var launchBotMethod = typeof(wManager.Information).GetMethod(
+                    "LaunchBot",
+                    BindingFlags.Public | BindingFlags.Static);
+
+                WriteStartupLog(
+                    "OriginalEntrySelfCheck launching=" + (launchingType != null) +
+                    " launchingAsm=" + (launchingType?.Assembly.FullName ?? "null") +
+                    " launchBotMethod=" + (launchBotMethod != null));
+            }
+            catch (Exception ex)
+            {
+                WriteStartupLog("OriginalEntrySelfCheck failed " + ex.GetType().Name + ": " + ex.Message);
             }
         }
 
