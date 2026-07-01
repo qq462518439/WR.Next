@@ -14,6 +14,7 @@ namespace WR.OriginalUiHost
         protected override void OnStartup(StartupEventArgs e)
         {
             WriteStartupLog("OnStartup begin");
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
             OriginalThemeManager.Initialize(this);
             AppDomain.CurrentDomain.AssemblyResolve += ResolveOriginalRuntimeAssembly;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -25,8 +26,27 @@ namespace WR.OriginalUiHost
             Directory.SetCurrentDirectory(Paths.Root);
             WriteStartupLog("CurrentDirectory=" + Directory.GetCurrentDirectory());
             WriteStartupLog("RuntimeRoot=" + Paths.Root);
+            var healthCheck = OriginalRuntimeHealthCheck.Run(Paths);
+            WriteStartupLog("HealthCheck " + healthCheck.Summary);
+            foreach (var detail in healthCheck.Details)
+            {
+                WriteStartupLog("HealthCheckDetail " + detail);
+            }
+
+            if (!healthCheck.Ok)
+            {
+                MessageBox.Show(
+                    healthCheck.Summary + Environment.NewLine + string.Join(Environment.NewLine, healthCheck.Details),
+                    "WR.Next",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                Shutdown(-1);
+                return;
+            }
+
             PreloadNativeBridgeAssemblies();
             WriteOriginalEntrySelfCheck();
+            WriteLoadedAssemblySnapshot("post-preload");
             TryLoadStyleResources();
             base.OnStartup(e);
             MainWindow = new MainWindow();
@@ -34,9 +54,16 @@ namespace WR.OriginalUiHost
             WriteStartupLog("OnStartup end");
         }
 
+        protected override void OnExit(ExitEventArgs e)
+        {
+            WriteStartupLog("OnExit code=" + e.ApplicationExitCode);
+            base.OnExit(e);
+        }
+
         private static void PreloadNativeBridgeAssemblies()
         {
             TryPreloadOriginalHostAssembly();
+            TryPreloadAssembly("MemoryRobot.dll");
             TryPreloadAssembly("RDManaged.dll");
             TryPreloadAssembly("fasmdll_managed.dll");
         }
@@ -153,6 +180,51 @@ namespace WR.OriginalUiHost
             catch (Exception ex)
             {
                 WriteStartupLog("OriginalEntrySelfCheck failed " + ex.GetType().Name + ": " + ex.Message);
+            }
+        }
+
+        private static void WriteLoadedAssemblySnapshot(string label)
+        {
+            try
+            {
+                var interestingAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(assembly =>
+                    {
+                        try
+                        {
+                            var name = assembly.GetName();
+                            return new
+                            {
+                                SimpleName = name.Name,
+                                FullName = name.FullName,
+                                assembly.Location
+                            };
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    })
+                    .Where(entry => entry != null)
+                    .Where(entry =>
+                        string.Equals(entry.SimpleName, "MemoryRobot", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(entry.SimpleName, "wManager", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(entry.SimpleName, "robotManager", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(entry.SimpleName, "RDManaged", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(entry.SimpleName, "fasmdll_managed", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(entry.SimpleName, "WRobot", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(entry => entry.SimpleName, StringComparer.OrdinalIgnoreCase)
+                    .Select(entry => entry.SimpleName + "=" + entry.FullName + " @ " + entry.Location)
+                    .ToArray();
+
+                WriteStartupLog(
+                    "LoadedAssemblySnapshot " + label +
+                    " count=" + interestingAssemblies.Length +
+                    " entries=" + string.Join(" | ", interestingAssemblies));
+            }
+            catch (Exception ex)
+            {
+                WriteStartupLog("LoadedAssemblySnapshot " + label + " failed " + ex.GetType().Name + ": " + ex.Message);
             }
         }
 

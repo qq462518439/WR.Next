@@ -87,6 +87,13 @@ namespace WR.OriginalUiHost
                 WriteAction(stage + " step=EnsureProductItems-enter");
                 EnsureProductItems(control);
                 WriteAction(stage + " step=EnsureProductItems-exit");
+                if (!HasAttachedSession())
+                {
+                    WriteAction(stage + " step=skip-session-gated-resync reason=no-attached-session");
+                    WriteAction(stage + " step=end");
+                    return;
+                }
+
                 if (CanSkipHeavyResync(control, stage))
                 {
                     WriteAction(
@@ -200,7 +207,7 @@ namespace WR.OriginalUiHost
             return style;
         }
 
-        private static void WireModeSettingsButton(UserControlTabMain control)
+        private void WireModeSettingsButton(UserControlTabMain control)
         {
             var button = FindModeSettingsButton(control);
             if (button == null)
@@ -210,6 +217,7 @@ namespace WR.OriginalUiHost
 
             button.Click -= OnModeSettingsButtonClick;
             button.Click += OnModeSettingsButtonClick;
+            ApplyModeSettingsButtonGate(button);
         }
 
         private void WireStartButton(UserControlTabMain control)
@@ -223,19 +231,43 @@ namespace WR.OriginalUiHost
             button.Click -= control.ButtonStartBotClick;
             button.Click -= OnStartButtonClick;
             button.Click += OnStartButtonClick;
+            ApplyStartButtonGate(button);
         }
 
-        private static void OnModeSettingsButtonClick(object sender, RoutedEventArgs e)
+        private void OnModeSettingsButtonClick(object sender, RoutedEventArgs e)
         {
             try
             {
+                var sessionGate = GetSessionGateResult();
+                if (!sessionGate.ok)
+                {
+                    if (sender is Button blockedButton)
+                    {
+                        ApplyModeSettingsButtonGate(blockedButton);
+                    }
+
+                    WriteAction("mode-settings-button-click skipped reason=session-gate message=" + sessionGate.message);
+                    return;
+                }
+
                 Products.ProductNeedSettings();
-                WriteStaticAction("mode-settings-button-click event=ProductNeedSettings");
+                WriteAction("mode-settings-button-click event=ProductNeedSettings");
             }
             catch (Exception ex)
             {
-                WriteStaticAction("mode-settings-button-click-failed " + ex.GetType().Name + ": " + ex.Message);
+                WriteAction("mode-settings-button-click-failed " + ex.GetType().Name + ": " + ex.Message);
             }
+        }
+
+        private bool HasAttachedSession()
+        {
+            if (_runtimeBootstrap == null)
+            {
+                return false;
+            }
+
+            var session = _runtimeBootstrap.GetCurrentSessionSnapshot();
+            return session != null && session.IsAttached && session.ProcessId > 0;
         }
 
         private void OnStartButtonClick(object sender, RoutedEventArgs e)
@@ -248,6 +280,18 @@ namespace WR.OriginalUiHost
                     return;
                 }
 
+                var sessionGate = GetSessionGateResult();
+                if (!sessionGate.ok)
+                {
+                    if (sender is Button blockedButton)
+                    {
+                        ApplyStartButtonGate(blockedButton);
+                    }
+
+                    WriteAction("start-button-click skipped reason=session-gate message=" + sessionGate.message);
+                    return;
+                }
+
                 var result = Products.IsStarted && !Products.InPause
                     ? _runtimeBootstrap.StopOriginalProduct()
                     : _runtimeBootstrap.EnsureOriginalProductStartedInBackground();
@@ -257,6 +301,82 @@ namespace WR.OriginalUiHost
             {
                 WriteAction("start-button-click-failed " + ex.GetType().Name + ": " + ex.Message);
             }
+        }
+
+        private void ApplyStartButtonGate(Button button)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            var sessionGate = GetSessionGateResult();
+            button.IsEnabled = sessionGate.ok;
+            button.ToolTip = sessionGate.ok ? null : sessionGate.message;
+            WriteAction(
+                "start-button-gate enabled=" + sessionGate.ok +
+                " message=" + (sessionGate.message ?? "null"));
+        }
+
+        private void ApplyModeSettingsButtonGate(Button button)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            var sessionGate = GetSessionGateResult();
+            button.IsEnabled = sessionGate.ok;
+            button.ToolTip = sessionGate.ok ? null : sessionGate.message;
+            WriteAction(
+                "mode-settings-button-gate enabled=" + sessionGate.ok +
+                " message=" + (sessionGate.message ?? "null"));
+        }
+
+        private (bool ok, string message) GetSessionGateResult()
+        {
+            if (_runtimeBootstrap == null)
+            {
+                return (false, "运行时未初始化");
+            }
+
+            var session = _runtimeBootstrap.GetCurrentSessionSnapshot();
+            if (session == null)
+            {
+                return (false, "尚未建立接管会话");
+            }
+
+            if (!session.IsAttached)
+            {
+                return (false, "接管会话尚未附着");
+            }
+
+            if (!session.MemoryOpen)
+            {
+                return (false, "接管会话内存句柄无效");
+            }
+
+            if (!session.HookReady)
+            {
+                return (false, "接管会话 Hook 未就绪");
+            }
+
+            if (!session.InGame)
+            {
+                return (false, "角色尚未进入世界");
+            }
+
+            if (session.HealthState == SessionHealthState.Faulted)
+            {
+                return (false, "接管会话故障: " + (session.LastError ?? "未知错误"));
+            }
+
+            if (session.HealthState == SessionHealthState.Lost)
+            {
+                return (false, "接管会话已丢失，请重新选择进程");
+            }
+
+            return (true, null);
         }
 
         private void ReloadWRotationSettingsIfReady(string stage)

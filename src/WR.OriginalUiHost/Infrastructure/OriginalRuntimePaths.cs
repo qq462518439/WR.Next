@@ -46,6 +46,12 @@ namespace WR.OriginalUiHost
                 return new OriginalRuntimePaths(envRoot);
             }
 
+            var currentDirectory = Environment.CurrentDirectory;
+            if (LooksLikeRuntimeRoot(currentDirectory))
+            {
+                return new OriginalRuntimePaths(currentDirectory);
+            }
+
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             if (LooksLikeRuntimeRoot(baseDirectory))
             {

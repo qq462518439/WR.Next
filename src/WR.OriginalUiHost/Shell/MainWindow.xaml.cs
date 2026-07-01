@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using robotManager;
@@ -13,6 +15,7 @@ namespace WR.OriginalUiHost
         private readonly OriginalPopupSuppressor _popupSuppressor;
         private readonly OriginalRuntimeBootstrap _runtimeBootstrap;
         private readonly OriginalMainShellViewModel _viewModel;
+        private bool _isClosing;
 
         public MainWindow()
         {
@@ -36,7 +39,11 @@ namespace WR.OriginalUiHost
         {
             var viewModel = new OriginalMainShellViewModel();
 
-            viewModel.Pages.Add(new OriginalMainShellPage("_0002", () => Translate.Get("Select game process"), () => new ProcessManagementControl(Paths.Root, runtimeBootstrap)));
+            viewModel.Pages.Add(
+                new OriginalMainShellPage(
+                    "_0002",
+                    () => Translate.Get("Select game process"),
+                    () => new ProcessManagementControl(Paths.Root, runtimeBootstrap)));
             viewModel.Pages.Add(new OriginalMainShellPage("_0004", () => Translate.Get("Launch Bot"), () => new OriginalModeSelectionHostControl(runtimeBootstrap)));
             viewModel.Pages.Add(new OriginalMainShellPage("_0004_CFG", () => Translate.Get("Settings"), () => new OriginalModeSettingsHostControl()));
             viewModel.Pages.Add(new OriginalMainShellPage("_0008", () => Translate.Get("Game Information"), () => new OriginalInGameHostControl(runtimeBootstrap)));
@@ -77,9 +84,49 @@ namespace WR.OriginalUiHost
 
         private void OnClosed(object sender, EventArgs e)
         {
+            if (_isClosing)
+            {
+                return;
+            }
+
+            _isClosing = true;
             Products.OnProductNeedSettings -= OnProductNeedSettings;
             OriginalLanguageManager.LanguageChanged -= OnLanguageChanged;
             OriginalThemeManager.ThemeChanged -= OnThemeChanged;
+            try
+            {
+                _popupSuppressor.Stop();
+            }
+            catch
+            {
+            }
+            try
+            {
+                _runtimeBootstrap.Shutdown();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                if (Application.Current != null)
+                {
+                    Application.Current.Shutdown();
+                }
+            }
+            catch
+            {
+            }
+
+            // Final hard-exit guard: some original runtime/UI threads survive normal WPF shutdown.
+            try
+            {
+                Environment.Exit(0);
+            }
+            catch
+            {
+            }
         }
 
         private void OnProductNeedSettings(Products.ProductNeedSettingsEventArgs e)

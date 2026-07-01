@@ -3,8 +3,8 @@ setlocal
 
 set ROOT=D:\666\work\WR.Next
 set CSPROJ=%ROOT%\src\WR.OriginalUiHost\WR.OriginalUiHost.csproj
-set BUILD_OUT=%TEMP%\WR.Next\uihost-runtime-root-build
-set LAYOUT_SCRIPT=%ROOT%\tools\layout\Publish-OriginalUiHostLayout.ps1
+set BUILD_OUT=%ROOT%\src\WR.OriginalUiHost\bin\Debug\net48
+set RUNTIME_SYNC_SCRIPT=%ROOT%\tools\layout\Sync-OriginalUiHostMinimalRuntime.ps1
 
 title WR.Next - Build WR.OriginalUiHost
 cd /d "%ROOT%"
@@ -16,14 +16,14 @@ echo [1/2] Building WR.OriginalUiHost...
 dotnet build "%CSPROJ%" -c Debug -o "%BUILD_OUT%"
 if errorlevel 1 goto :fail
 
-echo [2/2] Publishing runtime layout...
-powershell -ExecutionPolicy Bypass -File "%LAYOUT_SCRIPT%" -BuildRoot "%BUILD_OUT%"
+echo [2/2] Syncing minimal runtime dependencies...
+powershell -ExecutionPolicy Bypass -File "%RUNTIME_SYNC_SCRIPT%" -BuildRoot "%BUILD_OUT%"
 if errorlevel 1 goto :fail
 
 echo.
 echo Build complete.
 echo Latest runnable root:
-echo %ROOT%\artifacts\uihost-runtime-layout
+echo %BUILD_OUT%
 echo.
 pause
 goto :eof

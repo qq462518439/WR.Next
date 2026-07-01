@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,10 +16,24 @@ namespace WR.OriginalUiHost
     internal sealed class OriginalLoginTakeoverAdapter
     {
         private readonly string _runtimeRoot;
+        private readonly bool _preserveOriginalAuthChain;
+        private readonly bool _autoInvokeOriginalLaunch;
 
         public OriginalLoginTakeoverAdapter(string runtimeRoot)
         {
             _runtimeRoot = runtimeRoot;
+            _preserveOriginalAuthChain = string.Equals(
+                Environment.GetEnvironmentVariable("WR_AUTH_CHAIN_PROBE"),
+                "1",
+                StringComparison.Ordinal);
+            _autoInvokeOriginalLaunch = string.Equals(
+                Environment.GetEnvironmentVariable("WR_ALLOW_AUTH_EXPERIMENTS"),
+                "1",
+                StringComparison.Ordinal) &&
+                string.Equals(
+                Environment.GetEnvironmentVariable("WR_AUTH_AUTO_INVOKE"),
+                "1",
+                StringComparison.Ordinal);
         }
 
         public void Attach(LoginUserControl control)
@@ -35,14 +50,20 @@ namespace WR.OriginalUiHost
         private void ApplyTakeover(LoginUserControl control, string stage)
         {
             WriteControlDiagnostics(control, stage + "-before-takeover");
+            AttachAuthChainProbe(control);
             ReplaceProcessList(control);
             TakeOverOriginalFields(control);
             TakeOverLaunchButton(control);
             TakeOverRefreshButton(control);
-            OverlayLocalButtons(control);
+            if (!_preserveOriginalAuthChain)
+            {
+                OverlayLocalButtons(control);
+            }
             HideOriginalBusyOverlays(control);
+            DumpAuthRuntimeBindings(control, stage);
             WriteControlDiagnostics(control, stage + "-after-takeover");
             DumpControlTree(control);
+            TryAutoInvokeOriginalLaunch(control, stage);
         }
 
         private void WriteControlDiagnostics(LoginUserControl control, string stage)
@@ -225,20 +246,40 @@ namespace WR.OriginalUiHost
             control.buttonLaunchBot.Content = "接管进程";
             control.buttonLaunchBot.Visibility = Visibility.Visible;
             control.buttonLaunchBot.IsEnabled = true;
-            control.buttonLaunchBot.Command = new RelayCommand(delegate { HandleLaunch(control); });
-            control.buttonLaunchBot.IsHitTestVisible = false;
+            if (!_preserveOriginalAuthChain)
+            {
+                control.buttonLaunchBot.Command = new RelayCommand(delegate { HandleLaunch(control); });
+                control.buttonLaunchBot.IsHitTestVisible = false;
+            }
             control.buttonLaunchBot.AddHandler(
                 Button.ClickEvent,
                 new RoutedEventHandler(delegate(object sender, RoutedEventArgs args)
                 {
-                    args.Handled = true;
-                    HandleLaunch(control);
+                    DumpAuthRuntimeBindings(control, "launch-routed-click-before");
+                    WriteAction(
+                        "auth-chain launch-button routed-click handledBefore=" + args.Handled +
+                        " preserveOriginal=" + _preserveOriginalAuthChain +
+                        " selected=" + DescribeSelectedProcess(control));
+                    if (!_preserveOriginalAuthChain)
+                    {
+                        args.Handled = true;
+                        HandleLaunch(control);
+                    }
                 }),
                 true);
             control.buttonLaunchBot.Click += delegate(object sender, RoutedEventArgs args)
             {
-                args.Handled = true;
-                HandleLaunch(control);
+                DumpAuthRuntimeBindings(control, "launch-click-before");
+                WriteAction(
+                    "auth-chain launch-button click handledBefore=" + args.Handled +
+                    " preserveOriginal=" + _preserveOriginalAuthChain +
+                    " selected=" + DescribeSelectedProcess(control));
+                if (!_preserveOriginalAuthChain)
+                {
+                    args.Handled = true;
+                    HandleLaunch(control);
+                }
+                DumpAuthRuntimeBindings(control, "launch-click-after");
             };
         }
 
@@ -251,33 +292,52 @@ namespace WR.OriginalUiHost
 
             control.buttonRefresh.Visibility = Visibility.Visible;
             control.buttonRefresh.IsEnabled = true;
-            control.buttonRefresh.Command = new RelayCommand(delegate { HandleRefresh(control); });
-            control.buttonRefresh.IsHitTestVisible = false;
+            if (!_preserveOriginalAuthChain)
+            {
+                control.buttonRefresh.Command = new RelayCommand(delegate { HandleRefresh(control); });
+                control.buttonRefresh.IsHitTestVisible = false;
+            }
             control.buttonRefresh.AddHandler(
                 Button.ClickEvent,
                 new RoutedEventHandler(delegate(object sender, RoutedEventArgs args)
                 {
-                    args.Handled = true;
-                    HandleRefresh(control);
+                    WriteAction(
+                        "auth-chain refresh-button routed-click handledBefore=" + args.Handled +
+                        " preserveOriginal=" + _preserveOriginalAuthChain);
+                    if (!_preserveOriginalAuthChain)
+                    {
+                        args.Handled = true;
+                        HandleRefresh(control);
+                    }
                 }),
                 true);
             control.buttonRefresh.Click += delegate(object sender, RoutedEventArgs args)
             {
-                args.Handled = true;
-                HandleRefresh(control);
+                WriteAction(
+                    "auth-chain refresh-button click handledBefore=" + args.Handled +
+                    " preserveOriginal=" + _preserveOriginalAuthChain);
+                if (!_preserveOriginalAuthChain)
+                {
+                    args.Handled = true;
+                    HandleRefresh(control);
+                }
             };
         }
 
         private void HandleLaunch(LoginUserControl control)
         {
             var selected = control.listBoxProcess == null ? null : control.listBoxProcess.SelectedItem as ProcessListItem;
-            WriteAction("launch-click selected=" + (selected == null ? "none" : selected.ProcessId.ToString()));
+            WriteAction(
+                "launch-click selected=" + (selected == null ? "none" : selected.ProcessId.ToString()) +
+                " preserveOriginal=" + _preserveOriginalAuthChain +
+                " textBefore=" + Quote(control.textBlockLaunchBot == null ? null : control.textBlockLaunchBot.Text));
             if (control.textBlockLaunchBot != null)
             {
                 control.textBlockLaunchBot.Text = selected == null
                     ? "未发现 Wow.exe"
                     : "已接管进程 " + selected.ProcessId + "，原始登录/订阅链已隔离";
             }
+            WriteAction("launch-click after text=" + Quote(control.textBlockLaunchBot == null ? null : control.textBlockLaunchBot.Text));
         }
 
         private void HandleRefresh(LoginUserControl control)
@@ -287,6 +347,46 @@ namespace WR.OriginalUiHost
             if (control.textBlockLaunchBot != null)
             {
                 control.textBlockLaunchBot.Text = "进程列表已由新宿主刷新";
+            }
+        }
+
+        private void AttachAuthChainProbe(LoginUserControl control)
+        {
+            if (control == null)
+            {
+                return;
+            }
+
+            if (control.listBoxProcess != null)
+            {
+                control.listBoxProcess.SelectionChanged += delegate(object sender, SelectionChangedEventArgs args)
+                {
+                    WriteAction(
+                        "auth-chain process-selection changed selected=" + DescribeSelectedProcess(control) +
+                        " added=" + args.AddedItems.Count +
+                        " removed=" + args.RemovedItems.Count);
+                };
+            }
+
+            if (control.buttonLaunchBot != null)
+            {
+                control.buttonLaunchBot.PreviewMouseLeftButtonDown += delegate(object sender, MouseButtonEventArgs args)
+                {
+                    WriteAction(
+                        "auth-chain launch-button preview-mousedown handledBefore=" + args.Handled +
+                        " preserveOriginal=" + _preserveOriginalAuthChain +
+                        " selected=" + DescribeSelectedProcess(control));
+                };
+            }
+
+            if (control.buttonRefresh != null)
+            {
+                control.buttonRefresh.PreviewMouseLeftButtonDown += delegate(object sender, MouseButtonEventArgs args)
+                {
+                    WriteAction(
+                        "auth-chain refresh-button preview-mousedown handledBefore=" + args.Handled +
+                        " preserveOriginal=" + _preserveOriginalAuthChain);
+                };
             }
         }
 
@@ -356,6 +456,206 @@ namespace WR.OriginalUiHost
             catch
             {
             }
+        }
+
+        private void DumpAuthRuntimeBindings(LoginUserControl control, string stage)
+        {
+            try
+            {
+                var sb = new StringBuilder();
+                sb.Append(DateTime.Now.ToString("s"));
+                sb.Append(" auth-binding ");
+                sb.Append(stage);
+                sb.Append(" ");
+                sb.Append(DescribeRoutedHandlers(control?.buttonLaunchBot, Button.ClickEvent, "buttonLaunchBot"));
+                sb.Append(" ");
+                sb.Append(DescribeRoutedHandlers(control?.buttonRefresh, Button.ClickEvent, "buttonRefresh"));
+                sb.Append(" ");
+                sb.Append(DescribeLoginServerState());
+                sb.Append(" ");
+                sb.Append(DescribeRemoteState());
+                sb.Append(Environment.NewLine);
+                File.AppendAllText(Path.Combine(_runtimeRoot, "Logs", "original-ui-host-actions.txt"), sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                WriteAction("auth-binding-failed " + stage + " " + ex.GetType().Name + ": " + ex.Message);
+            }
+        }
+
+        private void TryAutoInvokeOriginalLaunch(LoginUserControl control, string stage)
+        {
+            if (!_preserveOriginalAuthChain || !_autoInvokeOriginalLaunch || !string.Equals(stage, "idle", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            try
+            {
+                var originalLaunch = GetOriginalLaunchDelegate(control);
+                if (originalLaunch == null)
+                {
+                    WriteAction("auth-auto-invoke missing-original-launch-delegate");
+                    return;
+                }
+
+                WriteAction(
+                    "auth-auto-invoke begin method=" + originalLaunch.Method.Name +
+                    " target=" + (originalLaunch.Target == null ? "static" : originalLaunch.Target.GetType().FullName) +
+                    " selected=" + DescribeSelectedProcess(control));
+                DumpAuthRuntimeBindings(control, "auto-invoke-before");
+                originalLaunch.DynamicInvoke(control.buttonLaunchBot, new RoutedEventArgs(Button.ClickEvent, control.buttonLaunchBot));
+                DumpAuthRuntimeBindings(control, "auto-invoke-after");
+                WriteAction("auth-auto-invoke end");
+            }
+            catch (Exception ex)
+            {
+                var error = ex is TargetInvocationException tie && tie.InnerException != null ? tie.InnerException : ex;
+                WriteAction("auth-auto-invoke failed " + error.GetType().FullName + ": " + error.Message);
+            }
+        }
+
+        private static Delegate GetOriginalLaunchDelegate(LoginUserControl control)
+        {
+            if (control?.buttonLaunchBot == null)
+            {
+                return null;
+            }
+
+            var eventHandlersStoreProperty = typeof(UIElement).GetProperty("EventHandlersStore", BindingFlags.Instance | BindingFlags.NonPublic);
+            var store = eventHandlersStoreProperty?.GetValue(control.buttonLaunchBot, null);
+            if (store == null)
+            {
+                return null;
+            }
+
+            var getRoutedEventHandlers = store.GetType().GetMethod("GetRoutedEventHandlers", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var handlers = getRoutedEventHandlers?.Invoke(store, new object[] { Button.ClickEvent }) as Array;
+            if (handlers == null)
+            {
+                return null;
+            }
+
+            foreach (var handlerInfo in handlers.Cast<object>())
+            {
+                var handlerProperty = handlerInfo.GetType().GetProperty("Handler", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                var del = handlerProperty?.GetValue(handlerInfo, null) as Delegate;
+                if (del?.Target is LoginUserControl)
+                {
+                    return del;
+                }
+            }
+
+            return null;
+        }
+
+        private static string DescribeLoginServerState()
+        {
+            try
+            {
+                var type = typeof(LoginServer);
+                var flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
+                var fields = type.GetFields(flags)
+                    .Where(field => field.FieldType == typeof(bool) || field.FieldType == typeof(long) || field.FieldType == typeof(string))
+                    .OrderBy(field => field.Name, StringComparer.Ordinal)
+                    .Select(field => "LoginServer." + field.Name + "=" + SafeValue(field.GetValue(null)));
+                return string.Join("|", fields);
+            }
+            catch (Exception ex)
+            {
+                return "LoginServerStateError=" + ex.GetType().Name;
+            }
+        }
+
+        private static string DescribeRemoteState()
+        {
+            try
+            {
+                var type = typeof(Remote);
+                var flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
+                var fields = type.GetFields(flags)
+                    .Where(field => field.FieldType == typeof(bool) || field.FieldType == typeof(long) || field.FieldType == typeof(string) || typeof(IRemote).IsAssignableFrom(field.FieldType))
+                    .OrderBy(field => field.Name, StringComparer.Ordinal)
+                    .Select(field => "Remote." + field.Name + "=" + SafeValue(field.GetValue(null)));
+                return string.Join("|", fields);
+            }
+            catch (Exception ex)
+            {
+                return "RemoteStateError=" + ex.GetType().Name;
+            }
+        }
+
+        private static string DescribeRoutedHandlers(UIElement element, RoutedEvent routedEvent, string name)
+        {
+            if (element == null)
+            {
+                return name + "=null";
+            }
+
+            try
+            {
+                var eventHandlersStoreProperty = typeof(UIElement).GetProperty("EventHandlersStore", BindingFlags.Instance | BindingFlags.NonPublic);
+                var store = eventHandlersStoreProperty?.GetValue(element, null);
+                if (store == null)
+                {
+                    return name + "=store:null";
+                }
+
+                var getRoutedEventHandlers = store.GetType().GetMethod("GetRoutedEventHandlers", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                var handlers = getRoutedEventHandlers?.Invoke(store, new object[] { routedEvent }) as Array;
+                if (handlers == null || handlers.Length == 0)
+                {
+                    return name + "=handlers:0";
+                }
+
+                var desc = handlers.Cast<object>().Select(handlerInfo =>
+                {
+                    var handlerProperty = handlerInfo.GetType().GetProperty("Handler", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    var invokeHandledProperty = handlerInfo.GetType().GetProperty("InvokeHandledEventsToo", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    var del = handlerProperty?.GetValue(handlerInfo, null) as Delegate;
+                    var method = del?.Method;
+                    var target = del?.Target;
+                    return (target == null ? "static" : target.GetType().FullName) +
+                           "::" + (method == null ? "null" : method.Name) +
+                           "(handledToo=" + SafeValue(invokeHandledProperty?.GetValue(handlerInfo, null)) + ")";
+                });
+                return name + "=" + string.Join(",", desc);
+            }
+            catch (Exception ex)
+            {
+                return name + "=error:" + ex.GetType().Name;
+            }
+        }
+
+        private static string SafeValue(object value)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+
+            if (value is string text)
+            {
+                return "\"" + text.Replace("\"", "'") + "\"";
+            }
+
+            return value.ToString();
+        }
+
+        private static string DescribeSelectedProcess(LoginUserControl control)
+        {
+            var selected = control.listBoxProcess == null ? null : control.listBoxProcess.SelectedItem as ProcessListItem;
+            if (selected == null)
+            {
+                return "none";
+            }
+
+            return selected.ProcessId + ":" + selected.WindowTitle;
+        }
+
+        private static string Quote(string text)
+        {
+            return text == null ? "null" : "\"" + text.Replace("\"", "'") + "\"";
         }
 
         private static string SafePath(Process process)

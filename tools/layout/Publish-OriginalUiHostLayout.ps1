@@ -1,8 +1,9 @@
 param(
-    [string]$BuildRoot = "D:\666\work\WR.Next\artifacts\uihost-reorg-build",
+    [string]$BuildRoot = "D:\666\work\WR.Next\src\WR.OriginalUiHost\bin\Debug\net48",
     [string]$RuntimeSourceRoot = "D:\666\RZB",
     [string]$DiagnosticsRoot = "D:\666\work\WR.Next\tools\diagnostics",
-    [string]$OutputRoot = "D:\666\work\WR.Next\artifacts\uihost-runtime-layout"
+    [string]$OutputRoot = "D:\666\work\WR.Next\artifacts\uihost-runtime-layout",
+    [switch]$Incremental
 )
 
 Set-StrictMode -Version Latest
@@ -36,7 +37,44 @@ function Copy-FileSet {
 
     foreach ($path in $Paths) {
         if (Test-Path -LiteralPath $path) {
-            Copy-Item -LiteralPath $path -Destination $Destination -Force
+            $targetPath = Join-Path $Destination ([System.IO.Path]::GetFileName($path))
+            try {
+                Copy-Item -LiteralPath $path -Destination $Destination -Force
+            }
+            catch {
+                throw "Copy failed: '$path' -> '$targetPath'. $($_.Exception.Message)"
+            }
+        }
+    }
+}
+
+function Copy-FileRobust {
+    param(
+        [string]$Source,
+        [string]$Destination
+    )
+
+    if (-not (Test-Path -LiteralPath $Source)) {
+        return
+    }
+
+    $targetPath = Join-Path $Destination ([System.IO.Path]::GetFileName($Source))
+
+    for ($attempt = 1; $attempt -le 5; $attempt++) {
+        try {
+            if (Test-Path -LiteralPath $targetPath) {
+                Remove-Item -LiteralPath $targetPath -Force
+            }
+
+            Copy-Item -LiteralPath $Source -Destination $targetPath -Force
+            return
+        }
+        catch {
+            if ($attempt -eq 5) {
+                throw "Copy failed: '$Source' -> '$targetPath'. $($_.Exception.Message)"
+            }
+
+            Start-Sleep -Milliseconds (200 * $attempt)
         }
     }
 }
@@ -95,6 +133,28 @@ function Copy-FilteredDirectoryContents {
     }
 }
 
+function Assert-FileEquivalent {
+    param(
+        [string]$Source,
+        [string]$Destination
+    )
+
+    if (-not (Test-Path -LiteralPath $Source)) {
+        throw "Publish validation missing source: $Source"
+    }
+
+    if (-not (Test-Path -LiteralPath $Destination)) {
+        throw "Publish validation missing destination: $Destination"
+    }
+
+    $sourceHash = (Get-FileHash -LiteralPath $Source -Algorithm SHA256).Hash
+    $destinationHash = (Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash
+
+    if ($sourceHash -ne $destinationHash) {
+        throw "Publish validation mismatch: '$Source' -> '$Destination'"
+    }
+}
+
 $logsRoot = Join-Path $OutputRoot "logs"
 $toolsRoot = Join-Path $OutputRoot "tools"
 $dataRoot = Join-Path $OutputRoot "Data"
@@ -105,16 +165,30 @@ $fightClassRoot = Join-Path $OutputRoot "FightClass"
 $profilesRoot = Join-Path $OutputRoot "Profiles"
 $settingsRoot = Join-Path $OutputRoot "Settings"
 
-Reset-Directory -Path $OutputRoot
-Ensure-Directory -Path $logsRoot
-Ensure-Directory -Path $toolsRoot
-Ensure-Directory -Path $dataRoot
-Ensure-Directory -Path $binRoot
-Ensure-Directory -Path $productsRoot
-Ensure-Directory -Path $pluginsRoot
-Ensure-Directory -Path $fightClassRoot
-Ensure-Directory -Path $profilesRoot
-Ensure-Directory -Path $settingsRoot
+if ($Incremental) {
+    Ensure-Directory -Path $OutputRoot
+    Ensure-Directory -Path $logsRoot
+    Ensure-Directory -Path $toolsRoot
+    Ensure-Directory -Path $dataRoot
+    Ensure-Directory -Path $binRoot
+    Ensure-Directory -Path $productsRoot
+    Ensure-Directory -Path $pluginsRoot
+    Ensure-Directory -Path $fightClassRoot
+    Ensure-Directory -Path $profilesRoot
+    Ensure-Directory -Path $settingsRoot
+}
+else {
+    Reset-Directory -Path $OutputRoot
+    Ensure-Directory -Path $logsRoot
+    Ensure-Directory -Path $toolsRoot
+    Ensure-Directory -Path $dataRoot
+    Ensure-Directory -Path $binRoot
+    Ensure-Directory -Path $productsRoot
+    Ensure-Directory -Path $pluginsRoot
+    Ensure-Directory -Path $fightClassRoot
+    Ensure-Directory -Path $profilesRoot
+    Ensure-Directory -Path $settingsRoot
+}
 
 $rootFiles = @(
     (Join-Path $BuildRoot "WR.OriginalUiHost.exe"),
@@ -124,7 +198,9 @@ $rootFiles = @(
     (Join-Path $RuntimeSourceRoot "WRobot.exe.config")
 )
 
-Copy-FileSet -Paths $rootFiles -Destination $OutputRoot
+foreach ($rootFile in $rootFiles) {
+    Copy-FileRobust -Source $rootFile -Destination $OutputRoot
+}
 
 $exeConfigPath = Join-Path $OutputRoot "WR.OriginalUiHost.exe.config"
 $exeConfig = @"
@@ -164,28 +240,32 @@ $binFiles = @(
     (Join-Path $RuntimeSourceRoot "Bin\fasmdll_managed.dll")
 )
 
-Copy-FileSet -Paths $binFiles -Destination $binRoot
+foreach ($binFile in $binFiles) {
+    Copy-FileRobust -Source $binFile -Destination $binRoot
+}
 
-Copy-FilteredDirectoryContents -SourceDirectory (Join-Path $RuntimeSourceRoot "Data") -Destination $dataRoot -IncludeNames @(
-    "Lang",
-    "Digsites.xml",
-    "Meshes",
-    "Minimaps",
-    "NpcDB.xml",
-    "OffMeshConnections.xml",
-    "autoMakeElementalMacro.txt",
-    "temp"
-)
-Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $BuildRoot "FightClass") -Destination $fightClassRoot
-Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $BuildRoot "Plugins") -Destination $pluginsRoot
-Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $BuildRoot "Products") -Destination $productsRoot
-Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $RuntimeSourceRoot "FightClass") -Destination $fightClassRoot
-Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $RuntimeSourceRoot "Plugins") -Destination $pluginsRoot
-Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $RuntimeSourceRoot "Products") -Destination $productsRoot
-Copy-TreeIfExists -Source (Join-Path $RuntimeSourceRoot "Profiles") -Destination $profilesRoot
-Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $BuildRoot "Settings") -Destination $settingsRoot
-Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $RuntimeSourceRoot "Settings") -Destination $settingsRoot
-Copy-TreeIfExists -Source $DiagnosticsRoot -Destination $toolsRoot
+if (-not $Incremental) {
+    Copy-FilteredDirectoryContents -SourceDirectory (Join-Path $RuntimeSourceRoot "Data") -Destination $dataRoot -IncludeNames @(
+        "Lang",
+        "Digsites.xml",
+        "Meshes",
+        "Minimaps",
+        "NpcDB.xml",
+        "OffMeshConnections.xml",
+        "autoMakeElementalMacro.txt",
+        "temp"
+    )
+    Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $BuildRoot "FightClass") -Destination $fightClassRoot
+    Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $BuildRoot "Plugins") -Destination $pluginsRoot
+    Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $BuildRoot "Products") -Destination $productsRoot
+    Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $RuntimeSourceRoot "FightClass") -Destination $fightClassRoot
+    Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $RuntimeSourceRoot "Plugins") -Destination $pluginsRoot
+    Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $RuntimeSourceRoot "Products") -Destination $productsRoot
+    Copy-TreeIfExists -Source (Join-Path $RuntimeSourceRoot "Profiles") -Destination $profilesRoot
+    Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $BuildRoot "Settings") -Destination $settingsRoot
+    Copy-DirectoryContentsIfExists -SourceDirectory (Join-Path $RuntimeSourceRoot "Settings") -Destination $settingsRoot
+    Copy-TreeIfExists -Source $DiagnosticsRoot -Destination $toolsRoot
+}
 
 $readme = @"
 WR.OriginalUiHost 聚合运行目录
@@ -231,5 +311,11 @@ Start-Process @startParams
 '@
 
 [System.IO.File]::WriteAllText((Join-Path $OutputRoot "Launch-OriginalUiHost.ps1"), $launchScript, [System.Text.UTF8Encoding]::new($true))
+
+Assert-FileEquivalent -Source (Join-Path $BuildRoot "WR.OriginalUiHost.exe") -Destination (Join-Path $OutputRoot "WR.OriginalUiHost.exe")
+Assert-FileEquivalent -Source (Join-Path $BuildRoot "WR.OriginalUiHost.pdb") -Destination (Join-Path $OutputRoot "WR.OriginalUiHost.pdb")
+Assert-FileEquivalent -Source (Join-Path $BuildRoot "wManager.dll") -Destination (Join-Path $binRoot "wManager.dll")
+Assert-FileEquivalent -Source (Join-Path $BuildRoot "robotManager.dll") -Destination (Join-Path $binRoot "robotManager.dll")
+Assert-FileEquivalent -Source (Join-Path $BuildRoot "MemoryRobot.dll") -Destination (Join-Path $binRoot "MemoryRobot.dll")
 
 Get-ChildItem -LiteralPath $OutputRoot | Select-Object Name, Mode

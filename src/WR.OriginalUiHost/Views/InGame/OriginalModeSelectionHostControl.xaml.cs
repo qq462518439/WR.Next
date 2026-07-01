@@ -124,6 +124,14 @@ namespace WR.OriginalUiHost
 
         private void StartTakeoverRetryLoop()
         {
+            var session = _runtimeBootstrap.GetCurrentSessionSnapshot();
+            if (session == null || !session.IsAttached || session.ProcessId <= 0)
+            {
+                WriteHostAction("retry-loop-skip no-attached-session");
+                _takeoverRetryTimer?.Stop();
+                return;
+            }
+
             WriteHostAction("retry-loop-start");
             _takeoverRetryTimer?.Stop();
             _takeoverAttemptCount = 0;
@@ -140,6 +148,16 @@ namespace WR.OriginalUiHost
             if (_originalControl == null || _takeoverRetryTimer == null)
             {
                 WriteHostAction("retry-skip");
+                return;
+            }
+
+            var session = _runtimeBootstrap.GetCurrentSessionSnapshot();
+            if (session == null || !session.IsAttached || session.ProcessId <= 0)
+            {
+                WriteHostAction("retry-stop-no-attached-session");
+                _takeoverRetryTimer.Stop();
+                _takeoverRetryTimer.Tick -= OnTakeoverRetryTick;
+                _takeoverRetryTimer = null;
                 return;
             }
 

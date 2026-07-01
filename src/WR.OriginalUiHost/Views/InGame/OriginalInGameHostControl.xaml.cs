@@ -52,7 +52,16 @@ namespace WR.OriginalUiHost
             Loaded += delegate
             {
                 TryLoadOriginalInGameControl("loaded");
-                _retryTimer.Start();
+                var session = _runtimeBootstrap.GetCurrentSessionSnapshot();
+                if (session != null && session.IsAttached && session.ProcessId > 0)
+                {
+                    _retryTimer.Start();
+                }
+                else
+                {
+                    _retryTimer.Stop();
+                    WriteAction("loaded skip-retry-start no-attached-session");
+                }
             };
             Unloaded += delegate { _retryTimer.Stop(); };
         }
@@ -62,6 +71,14 @@ namespace WR.OriginalUiHost
             if (_originalControl != null)
             {
                 _retryTimer.Stop();
+                return;
+            }
+
+            var session = _runtimeBootstrap.GetCurrentSessionSnapshot();
+            if (session == null || !session.IsAttached || session.ProcessId <= 0)
+            {
+                _retryTimer.Stop();
+                WriteAction("retry-stop no-attached-session");
                 return;
             }
 
@@ -75,9 +92,14 @@ namespace WR.OriginalUiHost
                 var result = _runtimeBootstrap.RefreshAttachedProcess();
                 _lastSnapshot = result;
                 UpdateSummary(result);
+                UpdateActionButtonStates(result);
                 if (!result.Ok)
                 {
                     StatusText.Text = result.Message;
+                    if (stage == "loaded" || stage == "retry")
+                    {
+                        _retryTimer.Stop();
+                    }
                     WriteAction(stage + " skip " + result.Message);
                     return;
                 }
@@ -93,6 +115,7 @@ namespace WR.OriginalUiHost
                     OriginalContentHost.Content = _originalControl;
                     OriginalContentHost.Visibility = Visibility.Visible;
                     FailurePanel.Visibility = Visibility.Collapsed;
+                    _retryTimer.Stop();
                     WriteAction(stage + " attach-original-ingame success");
                 }
             }
@@ -104,6 +127,7 @@ namespace WR.OriginalUiHost
                 OriginalContentHost.Visibility = Visibility.Collapsed;
                 FailurePanel.Visibility = Visibility.Visible;
                 WriteAction(stage + " attach-original-ingame failed " + ex.GetType().Name + ": " + ex.Message);
+                UpdateActionButtonStates(null);
             }
         }
 
@@ -417,6 +441,8 @@ namespace WR.OriginalUiHost
         {
             if (result == null)
             {
+                UpdateActionButtonStates(null);
+                StatusText.Text = "接管门未就绪";
                 return;
             }
 
@@ -449,16 +475,17 @@ namespace WR.OriginalUiHost
 
             UpdateProductStateText();
             RefreshActionLogs();
+            UpdateActionButtonStates(result);
 
             if (result.Ok)
             {
                 FailurePanel.Visibility = _originalControl == null ? Visibility.Visible : Visibility.Collapsed;
-                StatusText.Text = "游戏中页未就绪";
+                StatusText.Text = _originalControl == null ? "接管已通过，等待原始游戏中页加载" : "接管已通过";
             }
             else
             {
                 FailurePanel.Visibility = Visibility.Visible;
-                StatusText.Text = result.Message;
+                StatusText.Text = BuildGateHeadline(result.Message);
             }
         }
 
@@ -482,6 +509,77 @@ namespace WR.OriginalUiHost
                 ReadLogTail("product-chain-actions.txt", 8) +
                 Environment.NewLine +
                 ReadLogTail("original-ingame-host-actions.txt", 8);
+        }
+
+        private void UpdateActionButtonStates(OriginalRuntimeAttachResult snapshot)
+        {
+            var session = _runtimeBootstrap.GetCurrentSessionSnapshot();
+            var gateReady =
+                snapshot != null &&
+                snapshot.Ok &&
+                session != null &&
+                session.IsAttached &&
+                session.MemoryOpen &&
+                session.HookReady &&
+                session.InGame &&
+                session.HealthState != SessionHealthState.Faulted &&
+                session.HealthState != SessionHealthState.Lost;
+
+            var controlReady = gateReady && _originalControl != null;
+
+            StartProductButton.IsEnabled = gateReady;
+            StartFightButton.IsEnabled = controlReady;
+            FaceTargetButton.IsEnabled = controlReady;
+            ApproachTargetButton.IsEnabled = controlReady;
+            InteractTargetButton.IsEnabled = controlReady;
+            TargetSequenceButton.IsEnabled = controlReady;
+            BattleSequenceButton.IsEnabled = controlReady;
+            PauseProductButton.IsEnabled = gateReady;
+            ResumeProductButton.IsEnabled = gateReady;
+            StopProductButton.IsEnabled = gateReady;
+            StopMoveButton.IsEnabled = gateReady;
+            StopFightButton.IsEnabled = gateReady;
+            RefreshButton.IsEnabled = true;
+        }
+
+        private static string BuildGateHeadline(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return "接管门未就绪";
+            }
+
+            if (message.IndexOf("接管会话未完成", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "接管门未完成，请回到进程管理页重新接管";
+            }
+
+            if (message.IndexOf("尚未建立接管会话", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "尚未接管进程";
+            }
+
+            if (message.IndexOf("尚未附着", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "接管已选择，但尚未附着";
+            }
+
+            if (message.IndexOf("Hook 未就绪", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "接管已建立，但 Hook 未就绪";
+            }
+
+            if (message.IndexOf("进入世界", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "角色尚未进入世界";
+            }
+
+            if (message.IndexOf("Memory.Open", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "接管失败：内存句柄无效";
+            }
+
+            return message;
         }
 
         private void WriteStructuredActionTimeline(

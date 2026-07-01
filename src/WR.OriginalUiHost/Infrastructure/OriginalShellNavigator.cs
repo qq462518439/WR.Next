@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 
@@ -20,11 +21,29 @@ namespace WR.OriginalUiHost
 
             if (page == null)
             {
+                WriteNavigationTrace("navigate-miss", originalField);
                 return false;
             }
 
             viewModel.SelectedPage = page;
+            WriteNavigationTrace("navigate-hit", originalField);
             return true;
+        }
+
+        private static void WriteNavigationTrace(string action, string originalField)
+        {
+            try
+            {
+                var path = Path.Combine(OriginalRuntimePaths.Current.LogsRoot, "shell-navigation-actions.txt");
+                var line =
+                    DateTime.Now.ToString("s") +
+                    " " + action +
+                    " field=" + (originalField ?? "null");
+                File.AppendAllText(path, line + Environment.NewLine);
+            }
+            catch
+            {
+            }
         }
     }
 }

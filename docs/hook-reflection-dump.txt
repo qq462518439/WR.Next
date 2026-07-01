@@ -1,4 +1,4 @@
-HOOK CTORS
+﻿HOOK CTORS
 Void .ctor(Int32, UInt32, Byte[], UInt32, UInt32, Boolean, Boolean, UInt32, UInt32, UInt32, UInt32)
   P 0 System.Int32 processId default=
   P 1 System.UInt32 detourAddress default=

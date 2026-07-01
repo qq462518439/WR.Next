@@ -77,3 +77,11 @@
 - 战斗链全量验证
 - 战斗动作收敛验证
 - 所有产品都能启动
+
+## 当前契约补充
+
+- 当前模式页开始按钮与游戏中页停止按钮，最终都落到同一个 `OriginalRuntimeBootstrap`
+- 开始链固定走 `EnsureOriginalProductStartedInBackground()`
+- 停止链固定走 `StopOriginalProduct()`
+- 产品状态仍以 `Products.IsStarted / Products.InPause / Products.ProductStop()` 为准
+- 只要 session 未就绪，开始链必须明确失败，不允许静默重试换 PID

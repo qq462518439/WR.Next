@@ -32,6 +32,11 @@ namespace WR.OriginalUiHost
             SuppressNow();
         }
 
+        public void Stop()
+        {
+            _timer.Stop();
+        }
+
         private void SuppressNow()
         {
             EnumWindows(delegate(IntPtr handle, IntPtr parameter)

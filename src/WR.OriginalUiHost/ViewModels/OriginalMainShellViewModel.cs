@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System;
 using robotManager;
 
 namespace WR.OriginalUiHost
@@ -23,7 +25,9 @@ namespace WR.OriginalUiHost
             {
                 if (!ReferenceEquals(_selectedPage, value))
                 {
+                    var previous = _selectedPage;
                     _selectedPage = value;
+                    WritePageSwitchTrace(previous, value);
                     OnPropertyChanged();
                 }
             }
@@ -63,6 +67,24 @@ namespace WR.OriginalUiHost
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private static void WritePageSwitchTrace(OriginalMainShellPage previous, OriginalMainShellPage current)
+        {
+            try
+            {
+                var path = Path.Combine(OriginalRuntimePaths.Current.LogsRoot, "shell-navigation-actions.txt");
+                var line =
+                    DateTime.Now.ToString("s") +
+                    " selected-page" +
+                    " from=" + (previous?.OriginalField ?? "null") +
+                    " to=" + (current?.OriginalField ?? "null") +
+                    " title=" + (current?.Title ?? "null");
+                File.AppendAllText(path, line + Environment.NewLine);
+            }
+            catch
+            {
+            }
         }
     }
 }

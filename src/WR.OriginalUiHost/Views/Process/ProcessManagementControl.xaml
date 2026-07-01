@@ -15,6 +15,13 @@
                        FontSize="22"
                        FontWeight="SemiBold" />
             <DockPanel Margin="0,5,0,0">
+                <CheckBox x:Name="AutoAttachCheckBox"
+                          DockPanel.Dock="Left"
+                          Margin="0,1,16,0"
+                          VerticalAlignment="Center"
+                          Content="启动时自动接管唯一进程"
+                          Checked="AutoAttachCheckBox_OnChanged"
+                          Unchecked="AutoAttachCheckBox_OnChanged" />
                 <TextBlock x:Name="StatusText"
                            DockPanel.Dock="Left"
                            VerticalAlignment="Center"
@@ -37,7 +44,7 @@
                   CanUserResizeRows="False"
                   GridLinesVisibility="Horizontal"
                   HeadersVisibility="Column"
-                    IsReadOnly="True"
+                    IsReadOnly="False"
                     RowHeight="38"
                     ColumnHeaderHeight="36"
                     SelectionMode="Single"
@@ -65,36 +72,48 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="接管"
-                                        Binding="{Binding IsAttached, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        Width="70" />
+                <DataGridTemplateColumn Header="接管"
+                                        Width="88">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding AttachButtonText}"
+                                    Padding="10,2"
+                                    MinWidth="58"
+                                    Click="OnAttachButtonClicked" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="PID"
                                     Binding="{Binding ProcessId}"
                                     Width="80"
                                     IsReadOnly="True" />
                 <DataGridTextColumn Header="窗口"
                                     Binding="{Binding WindowTitle}"
-                                    Width="2*"
+                                    Width="140"
                                     IsReadOnly="True" />
                 <DataGridTextColumn Header="角色"
                                     Binding="{Binding CharacterName}"
-                                    Width="*"
+                                    Width="110"
                                     IsReadOnly="True" />
                 <DataGridTextColumn Header="等级"
                                     Binding="{Binding Level}"
-                                    Width="80"
+                                    Width="56"
                                     IsReadOnly="True" />
                 <DataGridTextColumn Header="血量"
                                     Binding="{Binding HealthPercent}"
-                                    Width="80"
+                                    Width="56"
                                     IsReadOnly="True" />
                 <DataGridTextColumn Header="坐标"
                                     Binding="{Binding Position}"
-                                    Width="2*"
+                                    Width="150"
+                                    IsReadOnly="True" />
+                <DataGridTextColumn Header="接管门"
+                                    Binding="{Binding GateState}"
+                                    Width="92"
                                     IsReadOnly="True" />
                 <DataGridTextColumn Header="状态"
                                     Binding="{Binding State}"
-                                    Width="2*"
+                                    Width="150"
                                     IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
